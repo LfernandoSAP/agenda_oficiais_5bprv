@@ -80,7 +80,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
           {/* Mobile: empilhado, logos centralizados em cima + perfil abaixo */}
           <div className="flex flex-col sm:hidden gap-3">
             <div className="flex items-center justify-center gap-4">
-              <div className="relative w-[60px] h-[60px] flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+              <div className="relative w-[90px] h-[65px] flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
                 <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
               </div>
               <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
@@ -108,7 +108,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
           {/* Desktop: tudo em linha */}
           <div className="hidden sm:flex items-center justify-between gap-4">
             <div className="flex items-center gap-5 flex-1 min-w-0">
-              <div className="relative w-20 h-20 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+              <div className="relative w-[130px] h-[95px] flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
                 <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
               </div>
               <div className="relative w-20 h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
