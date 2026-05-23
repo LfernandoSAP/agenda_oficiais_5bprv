@@ -19,7 +19,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         const cpf = limparCPF((credentials?.cpf as string) ?? "");
         if (!cpf) return null;
 
-        const user = await prisma.user.findUnique({ where: { cpf, ativo: true } });
+        const user = await prisma.user.findFirst({ where: { cpf, ativo: true } });
         if (!user) return null;
 
         if (user.isAdmin) {
