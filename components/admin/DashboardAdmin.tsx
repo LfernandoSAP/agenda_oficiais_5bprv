@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -41,20 +42,38 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
   const periodoLabel = `${format(inicio, "dd", { locale: ptBR })} a ${format(fim, "dd/MMM/yyyy", { locale: ptBR }).toUpperCase()}`;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-[#1e3a5f] text-white px-4 py-4 shadow-md">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div>
-            <p className="text-[#c9a961] font-semibold text-sm">Administrador</p>
-            <h1 className="font-bold text-lg">Agenda 5º BPRv — Painel Admin</h1>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50">
+      <header
+        className="relative shadow-2xl"
+        style={{ background: "linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)" }}
+      >
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
+        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+              <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+            </div>
+            <div className="relative w-14 h-14 sm:w-20 sm:h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
+              <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
+            </div>
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+              <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
+            </div>
+            <div className="hidden sm:block border-l border-[#c9a961]/30 pl-4 ml-2">
+              <p className="text-[#c9a961] text-xs tracking-[0.2em] uppercase font-semibold">Painel Administrativo</p>
+              <h1 className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+                5º BPRv <span className="text-[#c9a961]">•</span> Sudoeste Paulista
+              </h1>
+            </div>
           </div>
           <button
             onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-1 text-blue-200 hover:text-white text-sm"
+            className="flex items-center gap-1.5 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-3 py-2 rounded-lg text-sm transition-all border border-[#c9a961]/30"
           >
-            <LogOut size={16} /> Sair
+            <LogOut size={16} /> <span className="hidden sm:inline">Sair</span>
           </button>
         </div>
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c9a961]/50 to-transparent" />
       </header>
 
       <div className="bg-white border-b sticky top-0 z-10">

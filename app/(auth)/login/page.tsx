@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { toast } from "sonner";
@@ -31,10 +32,7 @@ export default function LoginPage() {
   async function handleCpfSubmit(e: React.FormEvent) {
     e.preventDefault();
     const cpfLimpo = limparCPF(cpf);
-    if (!validarCPF(cpfLimpo)) {
-      toast.error("CPF inválido");
-      return;
-    }
+    if (!validarCPF(cpfLimpo)) { toast.error("CPF inválido"); return; }
     setLoading(true);
     try {
       const res = await fetch("/api/auth/verificar-cpf", {
@@ -43,17 +41,11 @@ export default function LoginPage() {
         body: JSON.stringify({ cpf: cpfLimpo }),
       });
       const data = await res.json();
-      if (!res.ok) {
-        toast.error("Acesso negado");
-        return;
-      }
+      if (!res.ok) { toast.error("Acesso negado"); return; }
       setIsAdmin(data.isAdmin);
       setEtapa(data.isAdmin ? "senha" : "re");
-    } catch {
-      toast.error("Erro de conexão");
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error("Erro de conexão"); }
+    finally { setLoading(false); }
   }
 
   async function handleLogin(e: React.FormEvent) {
@@ -66,136 +58,148 @@ export default function LoginPage() {
         senha: isAdmin ? senha : "",
         redirect: false,
       });
-      if (result?.error) {
-        toast.error("Credenciais inválidas");
-        return;
-      }
+      if (result?.error) { toast.error("Credenciais inválidas"); return; }
       router.push(isAdmin ? "/admin" : "/agenda");
       router.refresh();
-    } catch {
-      toast.error("Erro ao fazer login");
-    } finally {
-      setLoading(false);
-    }
+    } catch { toast.error("Erro ao fazer login"); }
+    finally { setLoading(false); }
   }
 
   return (
-    <div className="min-h-screen bg-[#1e3a5f] flex flex-col items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Logo placeholder */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="w-24 h-24 bg-[#c9a961] rounded-full flex items-center justify-center mb-4 text-[#1e3a5f] text-4xl font-bold">
-            5
+    <div
+      className="min-h-screen flex flex-col items-center justify-center p-4 relative"
+      style={{
+        background: "linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)",
+      }}
+    >
+      {/* Decorative corner brackets */}
+      <div className="absolute top-4 left-4 w-12 h-12 border-t-2 border-l-2 border-[#c9a961]/60 rounded-tl-lg" />
+      <div className="absolute top-4 right-4 w-12 h-12 border-t-2 border-r-2 border-[#c9a961]/60 rounded-tr-lg" />
+      <div className="absolute bottom-4 left-4 w-12 h-12 border-b-2 border-l-2 border-[#c9a961]/60 rounded-bl-lg" />
+      <div className="absolute bottom-4 right-4 w-12 h-12 border-b-2 border-r-2 border-[#c9a961]/60 rounded-br-lg" />
+
+      <div className="w-full max-w-2xl">
+        {/* Tag Portal Operacional */}
+        <div className="flex justify-center mb-6">
+          <span className="px-4 py-1.5 text-xs tracking-[0.25em] uppercase text-[#c9a961] border border-[#c9a961]/40 rounded-full bg-[#c9a961]/5">
+            ● Portal Operacional
+          </span>
+        </div>
+
+        {/* Logos */}
+        <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
+          <div className="relative w-20 h-20 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
+            <Image src="/imagens/asa_rodoviaria.png" alt="Asa Rodoviária" fill className="object-contain" priority />
           </div>
-          <h1 className="text-white text-2xl font-bold text-center leading-tight">
-            Agenda Semanal de Comandantes
+          <div className="relative w-24 h-24 sm:w-36 sm:h-36 drop-shadow-[0_0_25px_rgba(201,169,97,0.4)]">
+            <Image src="/imagens/logo_coin2.png" alt="Brasão 5º BPRv" fill className="object-contain" priority />
+          </div>
+          <div className="relative w-20 h-20 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
+            <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" priority />
+          </div>
+        </div>
+
+        {/* Title */}
+        <div className="text-center mb-2">
+          <h1
+            className="text-4xl sm:text-5xl font-bold text-[#c9a961] tracking-wide"
+            style={{ fontFamily: "Georgia, 'Times New Roman', serif", textShadow: "0 0 20px rgba(201,169,97,0.3)" }}
+          >
+            5º BPRv
           </h1>
-          <p className="text-[#c9a961] text-lg font-semibold mt-1">5º BPRv</p>
-          <p className="text-blue-200 text-sm mt-2 text-center">
-            Acesso restrito a oficiais cadastrados
+          <p className="text-blue-100/80 text-sm sm:text-base tracking-[0.2em] uppercase mt-1">
+            O Guardião das Rodovias do Sudoeste Paulista
           </p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-2xl p-8">
+        {/* Divider with diamond */}
+        <div className="flex items-center justify-center my-6">
+          <div className="w-16 h-px bg-gradient-to-r from-transparent to-[#c9a961]/50" />
+          <div className="w-2 h-2 bg-[#c9a961] rotate-45 mx-2" />
+          <div className="w-16 h-px bg-gradient-to-l from-transparent to-[#c9a961]/50" />
+        </div>
+
+        {/* Subtitle */}
+        <p className="text-blue-200/90 text-sm text-center mb-6 font-medium">
+          Agenda Semanal de Comandantes — Acesso restrito a oficiais cadastrados
+        </p>
+
+        {/* Login card */}
+        <div className="bg-[#0d2348]/80 backdrop-blur-sm border border-[#c9a961]/20 rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md mx-auto">
           {etapa === "cpf" && (
             <form onSubmit={handleCpfSubmit} className="space-y-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                <label className="block text-sm font-medium text-[#c9a961] mb-2 tracking-wide">CPF</label>
                 <input
-                  type="text"
-                  value={cpf}
-                  onChange={handleCpfChange}
-                  placeholder="000.000.000-00"
-                  maxLength={14}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-lg tracking-widest"
-                  inputMode="numeric"
+                  type="text" value={cpf} onChange={handleCpfChange}
+                  placeholder="000.000.000-00" maxLength={14} required inputMode="numeric"
+                  className="w-full px-4 py-3 bg-[#0a1f3d]/60 border border-[#c9a961]/30 rounded-lg text-white placeholder-white/30 text-lg tracking-widest focus:outline-none focus:border-[#c9a961] focus:ring-2 focus:ring-[#c9a961]/30 transition-all"
                 />
               </div>
               <button
-                type="submit"
-                disabled={loading || limparCPF(cpf).length < 11}
-                className="w-full bg-[#1e3a5f] text-white py-3 rounded-lg font-semibold text-lg hover:bg-[#2a4f7c] disabled:opacity-50 transition-colors"
+                type="submit" disabled={loading || limparCPF(cpf).length < 11}
+                className="w-full bg-gradient-to-r from-[#c9a961] to-[#b08e4a] text-[#0a1f3d] py-3 rounded-lg font-bold text-lg uppercase tracking-wider hover:shadow-[0_0_20px_rgba(201,169,97,0.5)] disabled:opacity-40 transition-all"
               >
-                {loading ? "Verificando..." : "Continuar"}
+                {loading ? "Verificando..." : "Continuar →"}
               </button>
             </form>
           )}
 
           {etapa === "re" && (
             <form onSubmit={handleLogin} className="space-y-5">
+              <p className="text-sm text-blue-200/70">CPF: <span className="text-white font-medium">{cpf}</span></p>
               <div>
-                <p className="text-sm text-gray-500 mb-4">CPF: {cpf}</p>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#c9a961] mb-2 tracking-wide">
                   RE (Registro de Efetivo)
                 </label>
                 <input
-                  type="text"
-                  value={re}
-                  onChange={handleReChange}
-                  placeholder="Digite seu RE com dígito"
-                  maxLength={8}
-                  required
-                  autoFocus
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-lg tracking-widest uppercase"
+                  type="text" value={re} onChange={handleReChange}
+                  placeholder="000000-X" maxLength={8} required autoFocus
+                  className="w-full px-4 py-3 bg-[#0a1f3d]/60 border border-[#c9a961]/30 rounded-lg text-white placeholder-white/30 text-lg tracking-widest uppercase focus:outline-none focus:border-[#c9a961] focus:ring-2 focus:ring-[#c9a961]/30 transition-all"
                 />
-                <p className="text-xs text-gray-400 mt-1">Formato: 000000-X</p>
+                <p className="text-xs text-blue-200/50 mt-1.5">Formato: 6 dígitos + traço + 1 caractere</p>
               </div>
               <div className="flex gap-3">
                 <button
-                  type="button"
-                  onClick={() => { setEtapa("cpf"); setRe(""); }}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Voltar
-                </button>
+                  type="button" onClick={() => { setEtapa("cpf"); setRe(""); }}
+                  className="flex-1 border border-[#c9a961]/40 text-[#c9a961] py-3 rounded-lg font-medium hover:bg-[#c9a961]/10 transition-colors"
+                >Voltar</button>
                 <button
-                  type="submit"
-                  disabled={loading || !/^\d{6}-[0-9A-Za-z]$/.test(re)}
-                  className="flex-2 flex-grow bg-[#1e3a5f] text-white py-3 rounded-lg font-semibold hover:bg-[#2a4f7c] disabled:opacity-50 transition-colors"
-                >
-                  {loading ? "Entrando..." : "Entrar"}
-                </button>
+                  type="submit" disabled={loading || !/^\d{6}-[0-9A-Za-z]$/.test(re)}
+                  className="flex-[2] bg-gradient-to-r from-[#c9a961] to-[#b08e4a] text-[#0a1f3d] py-3 rounded-lg font-bold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(201,169,97,0.5)] disabled:opacity-40 transition-all"
+                >{loading ? "Entrando..." : "Entrar"}</button>
               </div>
             </form>
           )}
 
           {etapa === "senha" && (
             <form onSubmit={handleLogin} className="space-y-5">
+              <p className="text-sm text-blue-200/70">
+                CPF: <span className="text-white font-medium">{cpf}</span> • <span className="text-[#c9a961]">Admin</span>
+              </p>
               <div>
-                <p className="text-sm text-gray-500 mb-4">CPF: {cpf} • Admin</p>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Senha</label>
+                <label className="block text-sm font-medium text-[#c9a961] mb-2 tracking-wide">Senha</label>
                 <input
-                  type="password"
-                  value={senha}
-                  onChange={(e) => setSenha(e.target.value)}
-                  placeholder="Digite sua senha"
-                  required
-                  autoFocus
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-lg"
+                  type="password" value={senha} onChange={(e) => setSenha(e.target.value)}
+                  placeholder="Digite sua senha" required autoFocus
+                  className="w-full px-4 py-3 bg-[#0a1f3d]/60 border border-[#c9a961]/30 rounded-lg text-white placeholder-white/30 text-lg focus:outline-none focus:border-[#c9a961] focus:ring-2 focus:ring-[#c9a961]/30 transition-all"
                 />
               </div>
               <div className="flex gap-3">
                 <button
-                  type="button"
-                  onClick={() => { setEtapa("cpf"); setSenha(""); }}
-                  className="flex-1 border border-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-50 transition-colors"
-                >
-                  Voltar
-                </button>
+                  type="button" onClick={() => { setEtapa("cpf"); setSenha(""); }}
+                  className="flex-1 border border-[#c9a961]/40 text-[#c9a961] py-3 rounded-lg font-medium hover:bg-[#c9a961]/10 transition-colors"
+                >Voltar</button>
                 <button
-                  type="submit"
-                  disabled={loading || !senha}
-                  className="flex-2 flex-grow bg-[#1e3a5f] text-white py-3 rounded-lg font-semibold hover:bg-[#2a4f7c] disabled:opacity-50 transition-colors"
-                >
-                  {loading ? "Entrando..." : "Entrar"}
-                </button>
+                  type="submit" disabled={loading || !senha}
+                  className="flex-[2] bg-gradient-to-r from-[#c9a961] to-[#b08e4a] text-[#0a1f3d] py-3 rounded-lg font-bold uppercase tracking-wider hover:shadow-[0_0_20px_rgba(201,169,97,0.5)] disabled:opacity-40 transition-all"
+                >{loading ? "Entrando..." : "Entrar"}</button>
               </div>
             </form>
           )}
         </div>
 
-        <p className="text-blue-300 text-xs text-center mt-6">
+        <p className="text-blue-200/50 text-xs text-center mt-6 tracking-wider">
           5º Batalhão de Polícia Rodoviária • Sistema Interno
         </p>
       </div>
