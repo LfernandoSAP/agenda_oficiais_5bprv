@@ -3,33 +3,11 @@ import Credentials from "next-auth/providers/credentials";
 import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 import { limparCPF } from "./cpf";
+import { authConfig } from "./auth.config";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  ...authConfig,
   session: { strategy: "jwt" },
-  pages: {
-    signIn: "/login",
-    error: "/login",
-  },
-  callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        token.id = user.id;
-        token.isAdmin = (user as any).isAdmin;
-        token.posto = (user as any).posto;
-        token.nomeCompleto = (user as any).nomeCompleto;
-        token.re = (user as any).re;
-      }
-      return token;
-    },
-    async session({ session, token }) {
-      session.user.id = token.id as string;
-      session.user.isAdmin = token.isAdmin as boolean;
-      session.user.posto = token.posto as string;
-      session.user.nomeCompleto = token.nomeCompleto as string;
-      session.user.re = token.re as string;
-      return session;
-    },
-  },
   providers: [
     Credentials({
       credentials: {
