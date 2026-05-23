@@ -87,14 +87,14 @@ export default function LoginPage() {
         </div>
 
         {/* Logos */}
-        <div className="flex items-center justify-center gap-4 sm:gap-8 mb-6">
-          <div className="relative w-20 h-20 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
+        <div className="flex items-center justify-center gap-5 sm:gap-10 mb-6">
+          <div className="relative w-16 h-16 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
             <Image src="/imagens/asa_rodoviaria.png" alt="Asa Rodoviária" fill className="object-contain" priority />
           </div>
-          <div className="relative w-24 h-24 sm:w-36 sm:h-36 drop-shadow-[0_0_25px_rgba(201,169,97,0.4)]">
+          <div className="relative w-20 h-20 sm:w-36 sm:h-36 drop-shadow-[0_0_25px_rgba(201,169,97,0.4)]">
             <Image src="/imagens/logo_coin2.png" alt="Brasão 5º BPRv" fill className="object-contain" priority />
           </div>
-          <div className="relative w-20 h-20 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
+          <div className="relative w-16 h-16 sm:w-28 sm:h-28 drop-shadow-[0_0_15px_rgba(201,169,97,0.3)]">
             <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" priority />
           </div>
         </div>

@@ -77,19 +77,47 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
 
         <div className="max-w-6xl mx-auto px-4 py-4 sm:py-5">
-          <div className="flex items-center justify-between gap-4">
-            {/* Logos + título */}
-            <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+          {/* Mobile: empilhado, logos centralizados em cima + perfil abaixo */}
+          <div className="flex flex-col sm:hidden gap-3">
+            <div className="flex items-center justify-center gap-4">
+              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
                 <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
               </div>
-              <div className="relative w-14 h-14 sm:w-20 sm:h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
                 <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
               </div>
-              <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
                 <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
               </div>
-              <div className="hidden sm:block border-l border-[#c9a961]/30 pl-4 ml-2">
+            </div>
+            <div className="flex items-center justify-between gap-2 border-t border-[#c9a961]/20 pt-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[#c9a961] text-[10px] font-semibold tracking-wide uppercase">{formatarPosto(session.user.posto)}</p>
+                <p className="text-white font-bold text-sm leading-tight truncate">{session.user.nomeCompleto}</p>
+                <p className="text-blue-200/70 text-[10px]">RE: {session.user.re}</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex items-center gap-1 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-2.5 py-1.5 rounded-lg text-xs transition-all border border-[#c9a961]/30 flex-shrink-0"
+              >
+                <LogOut size={14} /> Sair
+              </button>
+            </div>
+          </div>
+
+          {/* Desktop: tudo em linha */}
+          <div className="hidden sm:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-5 flex-1 min-w-0">
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+              </div>
+              <div className="relative w-20 h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
+                <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
+              </div>
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
+              </div>
+              <div className="border-l border-[#c9a961]/30 pl-4 ml-2">
                 <p className="text-[#c9a961] text-xs tracking-[0.2em] uppercase">Agenda Operacional</p>
                 <h1 className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "Georgia, serif" }}>
                   5º BPRv <span className="text-[#c9a961]">•</span> Sudoeste Paulista
@@ -97,8 +125,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
               </div>
             </div>
 
-            {/* Perfil + sair */}
-            <div className="flex items-center gap-3 sm:gap-4">
+            <div className="flex items-center gap-4">
               <div className="text-right">
                 <p className="text-[#c9a961] text-xs font-semibold tracking-wide">{formatarPosto(session.user.posto)}</p>
                 <p className="text-white font-bold text-sm leading-tight">{session.user.nomeCompleto}</p>
@@ -108,8 +135,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
                 onClick={() => signOut({ callbackUrl: "/login" })}
                 className="flex items-center gap-1.5 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-3 py-2 rounded-lg text-sm transition-all border border-[#c9a961]/30"
               >
-                <LogOut size={16} />
-                <span className="hidden sm:inline">Sair</span>
+                <LogOut size={16} /> Sair
               </button>
             </div>
           </div>

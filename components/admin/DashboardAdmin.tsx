@@ -48,30 +48,60 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
         style={{ background: "linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
-        <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3 sm:gap-4">
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
-              <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+        <div className="max-w-7xl mx-auto px-4 py-4">
+          {/* Mobile: empilhado */}
+          <div className="flex flex-col sm:hidden gap-3">
+            <div className="flex items-center justify-center gap-4">
+              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+              </div>
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
+                <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
+              </div>
+              <div className="relative w-12 h-12 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
+              </div>
             </div>
-            <div className="relative w-14 h-14 sm:w-20 sm:h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
-              <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
-            </div>
-            <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
-              <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
-            </div>
-            <div className="hidden sm:block border-l border-[#c9a961]/30 pl-4 ml-2">
-              <p className="text-[#c9a961] text-xs tracking-[0.2em] uppercase font-semibold">Painel Administrativo</p>
-              <h1 className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-                5º BPRv <span className="text-[#c9a961]">•</span> Sudoeste Paulista
-              </h1>
+            <div className="flex items-center justify-between gap-2 border-t border-[#c9a961]/20 pt-3">
+              <div>
+                <p className="text-[#c9a961] text-[10px] tracking-[0.2em] uppercase font-semibold">Painel Admin</p>
+                <p className="text-white font-bold text-sm leading-tight">5º BPRv • Sudoeste Paulista</p>
+              </div>
+              <button
+                onClick={() => signOut({ callbackUrl: "/login" })}
+                className="flex items-center gap-1 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-2.5 py-1.5 rounded-lg text-xs transition-all border border-[#c9a961]/30 flex-shrink-0"
+              >
+                <LogOut size={14} /> Sair
+              </button>
             </div>
           </div>
-          <button
-            onClick={() => signOut({ callbackUrl: "/login" })}
-            className="flex items-center gap-1.5 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-3 py-2 rounded-lg text-sm transition-all border border-[#c9a961]/30"
-          >
-            <LogOut size={16} /> <span className="hidden sm:inline">Sair</span>
-          </button>
+
+          {/* Desktop */}
+          <div className="hidden sm:flex items-center justify-between gap-4">
+            <div className="flex items-center gap-5">
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+              </div>
+              <div className="relative w-20 h-20 flex-shrink-0 drop-shadow-[0_0_12px_rgba(201,169,97,0.5)]">
+                <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
+              </div>
+              <div className="relative w-16 h-16 flex-shrink-0 drop-shadow-[0_0_8px_rgba(201,169,97,0.3)]">
+                <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
+              </div>
+              <div className="border-l border-[#c9a961]/30 pl-4 ml-2">
+                <p className="text-[#c9a961] text-xs tracking-[0.2em] uppercase font-semibold">Painel Administrativo</p>
+                <h1 className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "Georgia, serif" }}>
+                  5º BPRv <span className="text-[#c9a961]">•</span> Sudoeste Paulista
+                </h1>
+              </div>
+            </div>
+            <button
+              onClick={() => signOut({ callbackUrl: "/login" })}
+              className="flex items-center gap-1.5 text-[#c9a961] hover:text-white hover:bg-[#c9a961]/10 px-3 py-2 rounded-lg text-sm transition-all border border-[#c9a961]/30"
+            >
+              <LogOut size={16} /> Sair
+            </button>
+          </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c9a961]/50 to-transparent" />
       </header>
