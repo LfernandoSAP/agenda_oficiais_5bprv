@@ -65,7 +65,7 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
             <div className="flex items-center justify-between gap-2 border-t border-[#c9a961]/20 pt-3">
               <div>
                 <p className="text-[#c9a961] text-[10px] tracking-[0.2em] uppercase font-semibold">Painel Admin</p>
-                <p className="text-white font-bold text-sm leading-tight">5º BPRv • Sudoeste Paulista</p>
+                <p className="text-white font-bold text-sm leading-tight">5º BPRv</p>
               </div>
               <button
                 onClick={() => signOut({ callbackUrl: "/login" })}
@@ -91,7 +91,7 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
               <div className="border-l border-[#c9a961]/30 pl-4 ml-2">
                 <p className="text-[#c9a961] text-xs tracking-[0.2em] uppercase font-semibold">Painel Administrativo</p>
                 <h1 className="text-white font-bold text-lg leading-tight" style={{ fontFamily: "Georgia, serif" }}>
-                  5º BPRv <span className="text-[#c9a961]">•</span> Sudoeste Paulista
+                  5º BPRv
                 </h1>
               </div>
             </div>
