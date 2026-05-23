@@ -1,0 +1,20 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(Rename-Item \"h:\\\\Projetos\\\\agenda_oficiais\\\\readme.md\" \"SPEC.md\")",
+      "Bash(mv \"h:/Projetos/agenda_oficiais/readme.md\" \"h:/Projetos/agenda_oficiais/SPEC.md\")",
+      "Read(//h/Projetos/**)",
+      "Bash(npx create-next-app@latest agenda_oficiais_tmp --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(xcopy \"h:\\\\Projetos\\\\agenda_oficiais_tmp\" \"h:\\\\Projetos\\\\agenda_oficiais\" /E /I /H /Y)",
+      "Bash(rmdir /s /q \"h:\\\\Projetos\\\\agenda_oficiais_tmp\")",
+      "Bash(npx shadcn@latest init --defaults)",
+      "Bash(npx prisma *)",
+      "Bash(node -e \"console.log\\(require\\('crypto'\\).randomBytes\\(32\\).toString\\('base64'\\)\\)\")"
+    ],
+    "additionalDirectories": [
+      "h:\\Projetos\\agenda_oficiais",
+      "H:\\Projetos\\agenda_oficiais_tmp"
+    ]
+  }
+}
