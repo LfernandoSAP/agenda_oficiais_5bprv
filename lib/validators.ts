@@ -36,7 +36,7 @@ export const agendaSchema = z.object({
     "MISSAO",
     "OUTROS",
   ]),
-  observacao: z.string().max(200).optional(),
+  observacao: z.string().max(200).nullable().optional(),
 });
 
 export const usuarioSchema = z.object({

@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const parsed = agendaSchema.safeParse(body);
-  if (!parsed.success) return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 });
 
   const { data, tipo, observacao } = parsed.data;
   const dataObj = new Date(data + "T12:00:00Z");
@@ -46,7 +46,7 @@ export async function PUT(req: NextRequest) {
   const body = await req.json();
   const { id, ...rest } = body;
   const parsed = agendaSchema.safeParse(rest);
-  if (!parsed.success) return NextResponse.json({ error: "Dados inválidos" }, { status: 400 });
+  if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 });
 
   const existing = await prisma.agenda.findUnique({ where: { id } });
   if (!existing || existing.userId !== session.user.id) {
