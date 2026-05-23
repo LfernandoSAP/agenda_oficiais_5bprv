@@ -9,18 +9,21 @@ Aplicação web responsiva (mobile-first) para gestão de agenda semanal dos ofi
 
 ## 🛠️ Stack
 
-| Camada | Tecnologia |
-|--------|-----------|
-| Framework | Next.js 15 (App Router) + TypeScript |
-| Estilização | Tailwind CSS v4 |
-| Banco | PostgreSQL (Supabase) |
-| ORM | Prisma 5 |
-| Autenticação | NextAuth.js v5 (Auth.js) com Credentials |
-| Validação | Zod |
-| Datas | date-fns (pt-BR) |
-| Ícones | lucide-react |
-| Toasts | sonner |
-| Deploy | Vercel |
+| Camada | Tecnologia | Versão |
+|--------|-----------|--------|
+| Framework | Next.js (App Router) + TypeScript | 15.5.18 |
+| Estilização | Tailwind CSS | v4 |
+| Banco | PostgreSQL (Supabase) | - |
+| ORM | Prisma | 5.22 |
+| Autenticação | NextAuth.js v5 (Auth.js) + Credentials | beta.31 |
+| Validação | Zod | v4 |
+| Datas | date-fns (pt-BR) | 4.2 |
+| Ícones | lucide-react | 1.16 |
+| Toasts | sonner | 2.0 |
+| Imagens | next/image (com `<Image fill>`) | - |
+| Deploy | Vercel | - |
+
+⚠️ **Não atualizar Next.js para 16 ou Prisma para 7** — incompatibilidades conhecidas com Vercel/runtime (ver seção "Armadilhas").
 
 ---
 
@@ -36,47 +39,50 @@ Aplicação web responsiva (mobile-first) para gestão de agenda semanal dos ofi
 1. CPF → sistema detecta `isAdmin: true`
 2. Pede **senha** → bcrypt compare → sessão admin
 
-Sem proxy/middleware Edge — a verificação de sessão ocorre em cada Server Component via `auth()`. Cookies HttpOnly via NextAuth.
+🚫 **Sem `middleware.ts` / `proxy.ts`** — proteção de rota é feita em cada Server Component via `auth()`. Edge Runtime não aceita Prisma/bcrypt.
+
+### Admin master inicial
+| Campo | Valor |
+|-------|-------|
+| CPF | `164.451.118-58` |
+| Senha | `[REDACTED]` |
+
+⚠️ **Trocar a senha após primeiro login** em Admin → Config.
 
 ---
 
 ## 📅 Funcionalidades
 
 ### Oficial (`/agenda`)
-- Visualização em cards da semana (Seg–Dom) com cores por tipo de escala
+- Cards da semana (Seg–Dom) com gradiente colorido por tipo de escala
 - 7 tipos: Exp. Normal, Folga Semanal, Férias, Dispensa Médica, Curso, Missão, Outros
-- Feriados nacionais + Carnaval, Sexta-feira Santa, Corpus Christi (calculados via algoritmo Gregoriano)
-- Estadual SP (9 de julho) incluso
-- Sábado/Domingo/Feriados com aviso antes de agendar
-- Navegação por semana (← → atual / anterior / próxima)
+- Borda esquerda 6px + emoji temático por tipo
+- Feriados nacionais + Carnaval/Sexta Santa/Corpus Christi (nativos)
+- Sábado/Domingo/Feriados com modal de confirmação antes de agendar
+- Hoje destacado com ring dourado
+- Navegação por semana (Anterior / Atual / Próxima)
+- Legenda completa no rodapé
 
 ### Admin (`/admin`)
-- **Grade Consolidada:** tabela oficial × dias com cores por tipo
-- **Usuários:** cadastrar/editar/desativar oficiais (CPF, RE, nome, posto, e-mail)
-- **Logs:** auditoria de todas as ações (login, criou/alterou/deletou agenda etc.)
-- **Configurações:** alterar senha do admin
+- **Grade:** tabela oficial × dias com cores por tipo
+- **Usuários:** cadastrar/editar/desativar (CPF, RE, nome, posto, e-mail). Não exclui — só desativa.
+- **Logs:** auditoria (login, criou/alterou/deletou agenda, alterou usuário, alterou senha)
+- **Config:** alterar senha do admin
 
 ### Postos suportados
-`Cel PM`, `Ten Cel PM`, `Maj PM`, `Cap PM`, `Ten PM`
+`CEL_PM` (Cel PM) · `TEN_CEL_PM` (Ten Cel PM) · `MAJ_PM` (Maj PM) · `CAP_PM` (Cap PM) · `TEN_PM` (Ten PM)
 
 ---
 
 ## 🌱 Setup local
 
 ```bash
-# 1. Clone e instale
 git clone https://github.com/LfernandoSAP/agenda_oficiais_5bprv.git
 cd agenda_oficiais_5bprv
 npm install
-
-# 2. Copie env e preencha com credenciais Supabase
-cp .env.local.example .env.local
-
-# 3. Aplique schema + cria admin master
-npx prisma db push
-npx prisma db seed
-
-# 4. Roda dev server
+cp .env.local.example .env.local   # preencha as creds
+npx prisma db push                  # sincroniza schema
+npx prisma db seed                  # cria admin master
 npm run dev
 ```
 
@@ -84,36 +90,44 @@ npm run dev
 
 | Nome | Onde obter |
 |------|-----------|
-| `DATABASE_URL` | Supabase → Settings → Database → **Transaction pooler** (porta 6543) |
-| `DIRECT_URL` | Supabase → Settings → Database → **Direct connection** (porta 5432) |
+| `DATABASE_URL` | Supabase → Settings → Database → **Transaction pooler** (porta 6543) — `?pgbouncer=true` |
+| `DIRECT_URL` | Supabase → **Direct connection** (porta 5432) |
 | `AUTH_SECRET` | `node -e "console.log(require('crypto').randomBytes(32).toString('base64'))"` |
 | `NEXTAUTH_URL` | URL pública (ex: `https://agenda-oficiais-5bprv.vercel.app`) |
 
-⚠️ Senhas com caracteres especiais (`@`, `#`, `!`) precisam ser URL-encoded na connection string.
+⚠️ Senhas com caracteres especiais (`@`, `#`, `!`) precisam **URL-encoding** na connection string:
+- `@` → `%40`
+- `#` → `%23`
+- `!` → `%21`
+
+Prisma lê apenas `.env` (não `.env.local`). Manter ambos sincronizados.
 
 ---
 
 ## 🚀 Deploy
 
-Push para a branch `main` → Vercel faz build automático em produção.
+### Branch de produção
+**Vercel está configurado para `main`**. O repositório usa `master` localmente — push com `git push origin master:main` envia para a branch de produção.
 
+### Fluxo
 ```bash
-# Adicionar/atualizar env vars no Vercel
-npx vercel env add DATABASE_URL production
-# (repetir para DIRECT_URL, AUTH_SECRET, NEXTAUTH_URL)
-
-# Deploy automatico via GitHub
-git push origin master:main
+git push origin master:main              # auto-deploy Vercel
+# ou
+npx vercel deploy --prod --yes           # deploy manual
+npx vercel alias <new-url> agenda-oficiais-5bprv.vercel.app   # se precisar realiar
 ```
 
-### Admin master inicial
+### Vercel — IDs do projeto (caso precise via API)
+- **projectId:** `prj_zLaUaOhIfrtM9q2dDbVHACJCwYCi`
+- **orgId (team):** `team_jBrXZj8ohAoocm18YBroKzny`
+- **GitHub repo:** `LfernandoSAP/agenda_oficiais_5bprv`
+- **Production branch:** `main`
+- **Framework setting:** `nextjs` (deve estar configurado, senão Vercel não serve nada e dá 404)
+- **Deployment Protection:** **desabilitado** (`ssoProtection: null`, `passwordProtection: null`) — se ativado, retorna 401 em tudo
 
-| Campo | Valor |
-|-------|-------|
-| CPF | `164.451.118-58` |
-| Senha | `[REDACTED]` |
-
-⚠️ **Alterar a senha imediatamente após o primeiro login** em Admin → Config.
+### Build pipeline
+- `npm install` → roda `postinstall: prisma generate`
+- `npm run build` → `prisma generate && next build`
 
 ---
 
@@ -122,8 +136,8 @@ git push origin master:main
 ```
 /
 ├── prisma/
-│   ├── schema.prisma         # User, Agenda, Feriado, AuditLog
-│   └── seed.ts               # cria admin master
+│   ├── schema.prisma         # User, Agenda, Feriado (não usada), AuditLog
+│   └── seed.ts               # cria admin master CPF 164.451.118-58
 ├── app/
 │   ├── (auth)/login/         # tela de login institucional
 │   ├── (dashboard)/
@@ -134,59 +148,140 @@ git push origin master:main
 │   │   ├── agenda/           # CRUD agendas (upsert)
 │   │   ├── usuarios/         # gestão de oficiais
 │   │   └── admin/            # logs + alterar senha
-│   ├── layout.tsx
+│   ├── layout.tsx            # Inter font + Toaster sonner
 │   └── page.tsx              # redirect → /login
 ├── components/
 │   ├── agenda/               # AgendaSemanal, DiaCard, ModalAgenda
 │   ├── admin/                # DashboardAdmin, ModalUsuario
 │   └── shared/
 ├── lib/
-│   ├── auth.ts               # NextAuth config (Prisma + bcrypt)
-│   ├── auth.config.ts        # config edge-safe (reservado p/ futuro)
+│   ├── auth.ts               # NextAuth config (Prisma + bcrypt) — Node runtime
+│   ├── auth.config.ts        # config edge-safe (reservado, não em uso)
 │   ├── prisma.ts             # singleton client
 │   ├── cpf.ts                # validador oficial + máscara
 │   ├── validators.ts         # schemas Zod
-│   ├── utils.ts              # helpers (semana, formatadores)
+│   ├── utils.ts              # helpers (getSemana, formatarPosto, etc.)
 │   ├── dateKey.ts            # ⚠️ converte Date → yyyy-MM-dd TZ-safe
 │   └── feriados.ts           # feriados BR nativos (algoritmo Páscoa)
 ├── public/imagens/           # asa_rodoviaria, logo_coin2, logo_5rv
-└── types/next-auth.d.ts
+└── types/next-auth.d.ts      # extend Session/JWT com isAdmin, posto, etc.
 ```
 
 ---
 
-## 🐛 Notas de arquitetura — armadilhas resolvidas
+## 🎨 Padrões Visuais
 
-### 1. Timezone bug (UTC-3) — RESOLVIDO
-O campo `data: DateTime @db.Date` é armazenado pelo Postgres como **data UTC**. Prisma retorna `Date(YYYY-MM-DDT00:00:00.000Z)`. Em UTC-3, `.getDate()` recuava 1 dia, fazendo agendas aparecerem no card do dia anterior.
+### Cores institucionais
+- **Azul-marinho escuro:** `#0a1f3d`
+- **Azul-marinho:** `#1e3a5f`
+- **Dourado:** `#c9a961`
+- Gradiente header: `linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)`
 
-**Solução:** `lib/dateKey.ts` detecta se o `Date` está em UTC midnight (vem do banco) e usa `getUTCDate()`; senão usa componentes locais (vindo de `date-fns startOfWeek`). Server pages também normalizam para string antes de passar ao client.
+### Tipografia
+- **Sans-serif:** Inter (corpo)
+- **Serif:** Georgia (títulos: "5º BPRv", número grande do dia no card)
 
-### 2. NextAuth + Edge Runtime — RESOLVIDO
-Next.js 16 deprecou `middleware.ts` em favor de `proxy.ts`, e Edge Runtime não aceita Prisma/bcrypt. **Solução:** removido totalmente — autenticação é verificada em cada Server Component via `auth()`.
+### Tamanhos dos logos (regra atual)
+| Logo | /login mobile | /login desktop | /agenda + /admin mobile | /agenda + /admin desktop |
+|------|---------------|----------------|-------------------------|--------------------------|
+| **asa_rodoviaria.png** (retangular) | `w-[120px] h-[90px]` | `w-[200px] h-[150px]` | `w-[90px] h-[65px]` | `w-[130px] h-[95px]` |
+| **logo_coin2.png** (quadrado central) | `w-20 h-20` | `w-36 h-36` | `w-16 h-16` | `w-20 h-20` |
+| **logo_5rv.png** (quadrado direita) | `w-16 h-16` | `w-28 h-28` | `w-12 h-12` | `w-16 h-16` |
 
-### 3. Prisma 7 incompatibilidade com Vercel — RESOLVIDO
-Downgrade para Prisma 5.22 (estável). Schema usa `provider = "prisma-client-js"` com `@db.Date` para o campo `data`.
+⚠️ **A asa é horizontal (formato de asa)** — sempre usar container retangular (~1.3:1), não quadrado, ou ela aparece pequena devido ao `object-contain`.
 
-### 4. Feriados nativos
-Removida dependência da API BrasilAPI. `lib/feriados.ts` calcula feriados via algoritmo Gregoriano de Páscoa (Carnaval = -47/-48 dias, Sexta Santa = -2, Corpus Christi = +60). Funciona para qualquer ano, offline.
+### Espaçamento entre logos
+- Login mobile: `gap-5` (20px) — desktop: `gap-10` (40px)
+- /agenda + /admin: `gap-5` (20px)
 
-### 5. Upsert em vez de create
-`POST /api/agenda` usa `prisma.agenda.upsert` com unique `(userId, data)` — permite o oficial re-cadastrar/atualizar o mesmo dia sem erro de constraint.
+### Cards de agenda (por tipo)
+| Tipo | Gradient | Badge | Emoji |
+|------|----------|-------|-------|
+| EXPEDIENTE_NORMAL | emerald-50→green-50 | bg-emerald-500 | 💼 |
+| FOLGA_SEMANAL | amber-50→yellow-50 | bg-amber-500 | 🌴 |
+| FERIAS | sky-50→blue-50 | bg-sky-500 | ✈️ |
+| DISPENSA_MEDICA | rose-50→red-50 | bg-rose-500 | 🩺 |
+| CURSO | purple-50→violet-50 | bg-purple-500 | 📚 |
+| MISSAO | orange-50→amber-50 | bg-orange-500 | 🎯 |
+| OUTROS | slate-50→gray-50 | bg-slate-500 | 📋 |
 
-### 6. findFirst em vez de findUnique
-Prisma `findUnique` não aceita filtros não-únicos no `where`. Trocado para `findFirst` quando filtra por `cpf + ativo`.
+### Detalhes
+- Tag "● PORTAL OPERACIONAL" dourada no login
+- Brackets dourados nos 4 cantos (estilo HUD militar) no login
+- Linha dourada decorativa no topo e rodapé dos headers (gradient com via-[#c9a961])
+- Cards com hover: elevação 0.5px + barra dourada animada (group-hover)
+- Hoje destacado com `ring-2 ring-[#c9a961] ring-offset-2`
 
 ---
 
-## 🎨 Design
+## 📱 Responsividade
 
-- **Cores institucionais:** azul-marinho `#0a1f3d` / `#1e3a5f`, dourado `#c9a961`
-- **Tipografia:** Inter (sans-serif) + Georgia (serif para títulos)
-- **Logos:** asa rodoviária + brasão 5º BPRv + escudo 5RV nos headers
-- **Cards:** gradiente sutil por tipo de escala, borda esquerda colorida (6px)
-- **Tag "Portal Operacional":** estilo institucional com cantos decorativos
-- **Brackets dourados:** nos cantos da tela de login (estilo HUD militar)
+### Layout headers (/agenda e /admin)
+- **Mobile (`< 640px`):** layout empilhado — 3 logos centralizados em cima + perfil/Sair embaixo separados por linha dourada
+- **Desktop (`≥ 640px`):** tudo em linha — logos + título à esquerda, perfil + Sair à direita
+
+### Grid de cards (/agenda)
+`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
+
+---
+
+## 🐛 Armadilhas resolvidas — NÃO REINTRODUZIR
+
+### 1. Timezone bug (`@db.Date` em UTC-3)
+PostgreSQL armazena `@db.Date` como data UTC. Em UTC-3, `.getDate()` recuava 1 dia → agenda salva em terça aparecia na segunda.
+
+**Solução:** `lib/dateKey.ts` com heurística — se `Date` está em UTC midnight (vem do banco), usa `getUTCDate()`; senão usa local. Server pages também normalizam Date → string antes de enviar ao client.
+
+❌ Não usar `format(date, "yyyy-MM-dd")` para comparar datas — sempre `dateKey(date)`.
+
+### 2. NextAuth + Edge Runtime
+Next.js 16 deprecou `middleware.ts` em favor de `proxy.ts`. Edge Runtime não aceita Prisma/bcrypt → 404 em todas as rotas.
+
+**Solução:** sem middleware/proxy. Auth verificada em cada Server Component via `auth()` de `lib/auth.ts`.
+
+### 3. Prisma 7 incompatível
+Prisma 7 mudou API (`url` no `prisma.config.ts`, não em `schema.prisma`). Build quebra na Vercel.
+
+**Solução:** Prisma 5.22 (estável). Schema usa `provider = "prisma-client-js"` + `@db.Date` no campo `data`.
+
+### 4. Next.js 16 incompatibilidade Vercel
+Build falha de várias formas (Turbopack, types). **Solução:** Next 15.5.
+
+### 5. Vercel Deployment Protection
+Por padrão, projetos novos têm SSO protection → 401 em tudo (cookie `_vercel_sso_nonce`).
+
+**Solução:** desabilitar via API: `PATCH /v9/projects/{id}` com `{ssoProtection: null, passwordProtection: null}`.
+
+### 6. Framework não setado no Vercel
+Sem `framework: "nextjs"` no projeto Vercel → retorna 404 (`X-Vercel-Error: NOT_FOUND`) mesmo com deploy Ready.
+
+**Solução:** `PATCH /v9/projects/{id}` com `{framework: "nextjs"}`.
+
+### 7. Branch produção `main` vs local `master`
+Repo foi inicializado com `master`, Vercel deploya `main`. Push para preview, não produção.
+
+**Solução:** sempre `git push origin master:main` para deploy de produção automático.
+
+### 8. Prisma `findUnique` com filtro não-único
+`findUnique({where: {cpf, ativo: true}})` falha — `ativo` não é único.
+
+**Solução:** usar `findFirst` quando há filtros não-únicos no `where`.
+
+### 9. Upsert em vez de create
+Constraint `@@unique([userId, data])` quebra `create` quando registro já existe.
+
+**Solução:** `prisma.agenda.upsert` com `where: { userId_data: { userId, data } }`.
+
+### 10. Zod v4 mudou API
+`parsed.error.errors` → `parsed.error.issues`.
+
+### 11. Senha Supabase com chars especiais
+`@pmr!sorocaba#` no DATABASE_URL precisa virar `%40pmr%21sorocaba%23`.
+
+### 12. Imagem horizontal em container quadrado
+A asa rodoviária é uma asa horizontal. Container quadrado + `object-contain` = imagem visualmente pequena.
+
+**Solução:** container retangular (~1.3:1 — vide tabela de tamanhos).
 
 ---
 
@@ -194,11 +289,35 @@ Prisma `findUnique` não aceita filtros não-únicos no `where`. Trocado para `f
 
 ```bash
 npm run dev          # dev server local
-npm run build        # build + prisma generate
+npm run build        # prisma generate + next build
 npm run start        # production server
 npm run db:push      # sincroniza schema → banco
 npm run db:seed      # cria admin master
 npm run db:studio    # Prisma Studio (UI do banco)
+```
+
+---
+
+## 🔧 Comandos úteis (debug / operação)
+
+```bash
+# Ver deploys recentes
+npx vercel ls --prod
+
+# Inspecionar deploy
+npx vercel inspect <deployment-url>
+
+# Realiar produção
+npx vercel alias <new-url> agenda-oficiais-5bprv.vercel.app
+
+# Logs do banco
+npx prisma studio
+
+# Sincronizar schema sem perder dados (cuidado)
+npx prisma db push
+
+# Resetar banco completo (apaga tudo)
+npx prisma migrate reset
 ```
 
 ---
