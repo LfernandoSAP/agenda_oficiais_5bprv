@@ -43,11 +43,15 @@ export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
           observacao: observacao.trim() || null,
         }),
       });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error ?? "Erro ao salvar");
+        return;
+      }
       toast.success(agenda ? "Agenda atualizada!" : "Agenda cadastrada!");
       onSave();
-    } catch {
-      toast.error("Erro ao salvar");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Erro ao salvar");
     } finally {
       setLoading(false);
     }
@@ -58,11 +62,15 @@ export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
     setLoading(true);
     try {
       const res = await fetch(`/api/agenda?id=${agenda.id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error();
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        toast.error(data?.error ?? "Erro ao excluir");
+        return;
+      }
       toast.success("Agenda excluída!");
       onSave();
-    } catch {
-      toast.error("Erro ao excluir");
+    } catch (err: any) {
+      toast.error(err?.message ?? "Erro ao excluir");
     } finally {
       setLoading(false);
     }
