@@ -20,7 +20,7 @@ export default async function AdminPage({ searchParams }: Props) {
   const inicio = startOfWeek(base, { weekStartsOn: 1 });
   const fim = endOfWeek(base, { weekStartsOn: 1 });
 
-  const [usuarios, agendas, stats] = await Promise.all([
+  const [usuarios, agendasRaw, stats] = await Promise.all([
     prisma.user.findMany({
       where: { ativo: true },
       orderBy: [{ posto: "asc" }, { nomeCompleto: "asc" }],
@@ -31,6 +31,12 @@ export default async function AdminPage({ searchParams }: Props) {
     }),
     prisma.user.count({ where: { ativo: true } }),
   ]);
+
+  // Normaliza Date -> string para o client
+  const agendas = agendasRaw.map((a) => ({
+    ...a,
+    data: dateKey(a.data),
+  }));
 
   const feriados = getFeriadosEntre(dateKey(inicio), dateKey(fim));
 

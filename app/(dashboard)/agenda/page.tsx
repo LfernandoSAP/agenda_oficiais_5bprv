@@ -20,12 +20,18 @@ export default async function AgendaPage({ searchParams }: Props) {
   const inicio = startOfWeek(base, { weekStartsOn: 1 });
   const fim = endOfWeek(base, { weekStartsOn: 1 });
 
-  const agendas = await prisma.agenda.findMany({
+  const agendasRaw = await prisma.agenda.findMany({
     where: {
       userId: session.user.id,
       data: { gte: inicio, lte: fim },
     },
   });
+
+  // Normaliza Date -> "yyyy-MM-dd" string para evitar bugs de timezone no client
+  const agendas = agendasRaw.map((a) => ({
+    ...a,
+    data: dateKey(a.data),
+  }));
 
   const feriados = getFeriadosEntre(dateKey(inicio), dateKey(fim));
 
