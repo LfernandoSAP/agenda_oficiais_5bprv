@@ -3,6 +3,8 @@ import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { DashboardAdmin } from "@/components/admin/DashboardAdmin";
 import { startOfWeek, endOfWeek, addWeeks } from "date-fns";
+import { getFeriadosEntre } from "@/lib/feriados";
+import { dateKey } from "@/lib/dateKey";
 
 interface Props {
   searchParams: Promise<{ semana?: string }>;
@@ -18,7 +20,7 @@ export default async function AdminPage({ searchParams }: Props) {
   const inicio = startOfWeek(base, { weekStartsOn: 1 });
   const fim = endOfWeek(base, { weekStartsOn: 1 });
 
-  const [usuarios, agendas, feriados, stats] = await Promise.all([
+  const [usuarios, agendas, stats] = await Promise.all([
     prisma.user.findMany({
       where: { ativo: true },
       orderBy: [{ posto: "asc" }, { nomeCompleto: "asc" }],
@@ -27,15 +29,16 @@ export default async function AdminPage({ searchParams }: Props) {
       where: { data: { gte: inicio, lte: fim } },
       include: { user: { select: { nomeCompleto: true, posto: true, re: true } } },
     }),
-    prisma.feriado.findMany({ where: { data: { gte: inicio, lte: fim } } }),
     prisma.user.count({ where: { ativo: true } }),
   ]);
+
+  const feriados = getFeriadosEntre(dateKey(inicio), dateKey(fim));
 
   return (
     <DashboardAdmin
       session={session}
       usuarios={usuarios}
-      agendas={agendas}
+      agendas={agendas as any}
       feriados={feriados}
       totalOficiais={stats}
       offset={offset}

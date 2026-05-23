@@ -2,29 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format, addWeeks, startOfWeek, endOfWeek, isSaturday, isSunday } from "date-fns";
+import { format, isSaturday, isSunday } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { toast } from "sonner";
-import { getSemana, formatarPosto, formatarTipoEscala, corTipoEscala, cn } from "@/lib/utils";
+import { getSemana, formatarPosto } from "@/lib/utils";
+import { dateKey } from "@/lib/dateKey";
+import type { Feriado } from "@/lib/feriados";
 import { DiaCard } from "./DiaCard";
 import { ModalAgenda } from "./ModalAgenda";
-import { LogOut, ChevronLeft, ChevronRight, Calendar } from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 type Agenda = {
   id: string;
-  data: Date;
+  data: string | Date;
   tipo: string;
   observacao: string | null;
   isFeriado: boolean;
   isFimSemana: boolean;
-};
-
-type Feriado = {
-  id: string;
-  data: Date;
-  nome: string;
-  tipo: string;
 };
 
 interface Props {
@@ -49,12 +43,9 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
   }
 
   function handleDiaClick(dia: Date) {
-    const agenda = agendas.find(
-      (a) => format(new Date(a.data), "yyyy-MM-dd") === format(dia, "yyyy-MM-dd")
-    );
-    const feriado = feriados.find(
-      (f) => format(new Date(f.data), "yyyy-MM-dd") === format(dia, "yyyy-MM-dd")
-    );
+    const key = dateKey(dia);
+    const agenda = agendas.find((a) => dateKey(a.data) === key);
+    const feriado = feriados.find((f) => f.data === key);
     const ehFimDeSemana = isSaturday(dia) || isSunday(dia);
 
     if ((feriado || ehFimDeSemana) && !agenda) {
@@ -77,7 +68,6 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
       <header className="bg-[#1e3a5f] text-white px-4 py-4 shadow-md">
         <div className="max-w-4xl mx-auto flex items-start justify-between gap-4">
           <div>
@@ -96,7 +86,6 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
       </header>
 
       <main className="max-w-4xl mx-auto px-4 py-6">
-        {/* Seletor de semana */}
         <div className="flex items-center justify-between mb-6 bg-white rounded-xl p-4 shadow-sm">
           <button
             onClick={() => irParaSemana(offset - 1)}
@@ -129,15 +118,11 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
           </button>
         )}
 
-        {/* Grid de dias */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
           {dias.map((dia) => {
-            const agenda = agendas.find(
-              (a) => format(new Date(a.data), "yyyy-MM-dd") === format(dia, "yyyy-MM-dd")
-            );
-            const feriado = feriados.find(
-              (f) => format(new Date(f.data), "yyyy-MM-dd") === format(dia, "yyyy-MM-dd")
-            );
+            const key = dateKey(dia);
+            const agenda = agendas.find((a) => dateKey(a.data) === key);
+            const feriado = feriados.find((f) => f.data === key);
             return (
               <DiaCard
                 key={dia.toISOString()}
@@ -151,7 +136,6 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
         </div>
       </main>
 
-      {/* Modal confirmação feriado/fim de semana */}
       {confirmFeriadoAberto && diaSelecionado && feriadoInfo && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-xl p-6 max-w-sm w-full">
@@ -187,7 +171,6 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
         </div>
       )}
 
-      {/* Modal de agenda */}
       {modalAberto && diaSelecionado && (
         <ModalAgenda
           dia={diaSelecionado}

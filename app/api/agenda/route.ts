@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { agendaSchema } from "@/lib/validators";
 import { isSaturday, isSunday } from "date-fns";
+import { getFeriadoEm } from "@/lib/feriados";
 
 async function logAudit(userId: string, acao: string, entidadeId: string, detalhes: any, ip: string) {
   try {
@@ -28,7 +29,7 @@ export async function POST(req: NextRequest) {
 
     const { data, tipo, observacao } = parsed.data;
     const dataObj = new Date(data + "T12:00:00Z");
-    const feriadoExiste = await prisma.feriado.findUnique({ where: { data: dataObj } });
+    const feriado = getFeriadoEm(data);
 
     const agenda = await prisma.agenda.upsert({
       where: { userId_data: { userId: session.user.id, data: dataObj } },
@@ -38,15 +39,15 @@ export async function POST(req: NextRequest) {
         data: dataObj,
         tipo: tipo as any,
         observacao,
-        isFeriado: !!feriadoExiste,
+        isFeriado: !!feriado,
         isFimSemana: isSaturday(dataObj) || isSunday(dataObj),
       },
     });
 
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    await logAudit(session.user.id, "CRIOU_AGENDA", agenda.id, { tipo, data }, ip);
+    await logAudit(session.user.id, "CRIOU_OU_ALTEROU_AGENDA", agenda.id, { tipo, data }, ip);
 
-    return NextResponse.json(agenda, { status: 201 });
+    return NextResponse.json(agenda, { status: 200 });
   } catch (err: any) {
     console.error("POST /api/agenda error:", err);
     return NextResponse.json({ error: err?.message ?? "Erro interno" }, { status: 500 });

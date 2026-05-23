@@ -2,21 +2,23 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { format, addWeeks, startOfWeek, endOfWeek, eachDayOfInterval } from "date-fns";
+import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { signOut } from "next-auth/react";
-import { LogOut, Users, Calendar, BarChart3, FileText, Settings, ChevronLeft, ChevronRight } from "lucide-react";
-import { getSemana, formatarPosto, formatarTipoEscala, corTipoEscala, cn } from "@/lib/utils";
+import { LogOut, Users, BarChart3, FileText, Settings, ChevronLeft, ChevronRight } from "lucide-react";
+import { getSemana, formatarPosto, formatarTipoEscala, cn } from "@/lib/utils";
+import { dateKey } from "@/lib/dateKey";
+import type { Feriado } from "@/lib/feriados";
 import { ModalUsuario } from "./ModalUsuario";
 import { toast } from "sonner";
 
-type Tab = "grade" | "usuarios" | "logs" | "feriados" | "configuracoes";
+type Tab = "grade" | "usuarios" | "logs" | "configuracoes";
 
 interface Props {
   session: any;
   usuarios: any[];
   agendas: any[];
-  feriados: any[];
+  feriados: Feriado[];
   totalOficiais: number;
   offset: number;
 }
@@ -55,14 +57,12 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
         </div>
       </header>
 
-      {/* Tabs */}
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto">
           {[
             { id: "grade", icon: <BarChart3 size={16} />, label: "Grade" },
             { id: "usuarios", icon: <Users size={16} />, label: "Usuários" },
             { id: "logs", icon: <FileText size={16} />, label: "Logs" },
-            { id: "feriados", icon: <Calendar size={16} />, label: "Feriados" },
             { id: "configuracoes", icon: <Settings size={16} />, label: "Config" },
           ].map((t) => (
             <button
@@ -82,7 +82,6 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
           <div className="bg-white rounded-xl p-4 shadow-sm">
             <p className="text-xs text-gray-500">Total de oficiais</p>
@@ -101,7 +100,6 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
           </div>
         </div>
 
-        {/* Seletor de semana */}
         <div className="flex items-center justify-between mb-4 bg-white rounded-xl p-3 shadow-sm">
           <button onClick={() => irParaSemana(offset - 1)} className="p-2 hover:bg-gray-100 rounded-lg">
             <ChevronLeft size={18} />
@@ -112,12 +110,10 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
           </button>
         </div>
 
-        {/* Grade consolidada */}
         {tab === "grade" && (
           <GradeConsolidada usuarios={usuarios} agendas={agendas} dias={dias} feriados={feriados} />
         )}
 
-        {/* Usuários */}
         {tab === "usuarios" && (
           <div>
             <div className="flex justify-between items-center mb-4">
@@ -169,7 +165,6 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
         )}
 
         {tab === "logs" && <LogsAuditoria />}
-        {tab === "feriados" && <GerenciarFeriados />}
         {tab === "configuracoes" && <Configuracoes />}
       </main>
 
@@ -202,7 +197,8 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
           <tr>
             <th className="text-left px-3 py-3 font-medium text-gray-600 min-w-[140px]">Oficial</th>
             {dias.map((d: Date) => {
-              const feriado = feriados.find((f: any) => format(new Date(f.data), "yyyy-MM-dd") === format(d, "yyyy-MM-dd"));
+              const key = dateKey(d);
+              const feriado = feriados.find((f: Feriado) => f.data === key);
               return (
                 <th key={d.toISOString()} className="px-2 py-3 font-medium text-gray-600 min-w-[90px]">
                   <div>{format(d, "EEE", { locale: ptBR })}</div>
@@ -221,10 +217,9 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
                 <div className="text-gray-400 font-normal">{formatarPosto(u.posto)}</div>
               </td>
               {dias.map((d: Date) => {
+                const key = dateKey(d);
                 const agenda = agendas.find(
-                  (a: any) =>
-                    a.userId === u.id &&
-                    format(new Date(a.data), "yyyy-MM-dd") === format(d, "yyyy-MM-dd")
+                  (a: any) => a.userId === u.id && dateKey(a.data) === key
                 );
                 return (
                   <td key={d.toISOString()} className="px-2 py-2 text-center">
@@ -294,80 +289,6 @@ function LogsAuditoria() {
           ))}
         </tbody>
       </table>
-    </div>
-  );
-}
-
-function GerenciarFeriados() {
-  const [feriados, setFeriados] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [loaded, setLoaded] = useState(false);
-  const [importando, setImportando] = useState(false);
-
-  async function carregar() {
-    setLoading(true);
-    const res = await fetch("/api/feriados");
-    const data = await res.json();
-    setFeriados(data);
-    setLoaded(true);
-    setLoading(false);
-  }
-
-  async function importarBrasilAPI() {
-    setImportando(true);
-    try {
-      const res = await fetch("/api/feriados/importar", { method: "POST" });
-      const data = await res.json();
-      toast.success(`${data.importados} feriados importados!`);
-      carregar();
-    } catch {
-      toast.error("Erro ao importar feriados");
-    } finally {
-      setImportando(false);
-    }
-  }
-
-  if (!loaded) {
-    return (
-      <div className="text-center py-12 space-y-3">
-        <button onClick={carregar} disabled={loading} className="bg-[#1e3a5f] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#2a4f7c] disabled:opacity-50 block mx-auto">
-          {loading ? "Carregando..." : "Carregar feriados"}
-        </button>
-        <button onClick={importarBrasilAPI} disabled={importando} className="border border-[#1e3a5f] text-[#1e3a5f] px-6 py-3 rounded-lg font-medium hover:bg-blue-50 disabled:opacity-50 block mx-auto">
-          {importando ? "Importando..." : "Importar da BrasilAPI"}
-        </button>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold text-[#1e3a5f]">Feriados cadastrados</h2>
-        <button onClick={importarBrasilAPI} disabled={importando} className="border border-[#1e3a5f] text-[#1e3a5f] px-4 py-2 rounded-lg text-sm hover:bg-blue-50 disabled:opacity-50">
-          {importando ? "Importando..." : "Importar BrasilAPI"}
-        </button>
-      </div>
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-gray-50 border-b">
-            <tr>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Data</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Nome</th>
-              <th className="text-left px-4 py-3 font-medium text-gray-600">Tipo</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {feriados.map((f: any) => (
-              <tr key={f.id} className="hover:bg-gray-50">
-                <td className="px-4 py-3">{format(new Date(f.data), "dd/MM/yyyy")}</td>
-                <td className="px-4 py-3 font-medium">{f.nome}</td>
-                <td className="px-4 py-3 text-gray-500 text-xs">{f.tipo}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   );
 }
