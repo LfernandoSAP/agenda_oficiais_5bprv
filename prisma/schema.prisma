@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  cpf          String   @unique
+  re           String   @unique
+  nomeCompleto String
+  posto        Posto
+  email        String?
+  isAdmin      Boolean  @default(false)
+  passwordHash String?
+  ativo        Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  agendas Agenda[]
+  logs    AuditLog[]
+}
+
+enum Posto {
+  CEL_PM
+  TEN_CEL_PM
+  MAJ_PM
+  CAP_PM
+  TEN_PM
+}
+
+model Agenda {
+  id          String     @id @default(cuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id])
+  data        DateTime   @db.Date
+  tipo        TipoEscala
+  observacao  String?
+  isFeriado   Boolean    @default(false)
+  isFimSemana Boolean    @default(false)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@unique([userId, data])
+  @@index([data])
+}
+
+enum TipoEscala {
+  EXPEDIENTE_NORMAL
+  FOLGA_SEMANAL
+  FERIAS
+  DISPENSA_MEDICA
+  CURSO
+  MISSAO
+  OUTROS
+}
+
+model Feriado {
+  id        String      @id @default(cuid())
+  data      DateTime    @db.Date @unique
+  nome      String
+  tipo      TipoFeriado
+  createdAt DateTime    @default(now())
+}
+
+enum TipoFeriado {
+  NACIONAL
+  ESTADUAL
+  MUNICIPAL
+  PONTO_FACULTATIVO
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  acao       String
+  entidade   String
+  entidadeId String?
+  detalhes   Json?
+  ipAddress  String?
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
