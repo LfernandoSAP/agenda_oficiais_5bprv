@@ -214,6 +214,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
               { label: "Dispensa Médica", cls: "bg-rose-100 text-rose-800 border-rose-300" },
               { label: "Curso", cls: "bg-purple-100 text-purple-800 border-purple-300" },
               { label: "Missão", cls: "bg-orange-100 text-orange-800 border-orange-300" },
+              { label: "EAP", cls: "bg-cyan-100 text-cyan-800 border-cyan-300" },
               { label: "Outros", cls: "bg-slate-100 text-slate-800 border-slate-300" },
             ].map((t) => (
               <span key={t.label} className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${t.cls}`}>

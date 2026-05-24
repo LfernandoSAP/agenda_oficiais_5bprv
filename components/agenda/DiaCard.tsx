@@ -41,6 +41,12 @@ const CORES_TIPO: Record<string, { bg: string; badge: string; accent: string; em
     accent: "border-l-orange-500",
     emoji: "🎯",
   },
+  EAP: {
+    bg: "bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-300",
+    badge: "bg-cyan-500 text-white",
+    accent: "border-l-cyan-500",
+    emoji: "🎓",
+  },
   OUTROS: {
     bg: "bg-gradient-to-br from-slate-50 to-gray-50 border-slate-300",
     badge: "bg-slate-500 text-white",

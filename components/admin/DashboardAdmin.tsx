@@ -241,6 +241,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
     DISPENSA_MEDICA: "bg-red-100 text-red-800",
     CURSO: "bg-purple-100 text-purple-800",
     MISSAO: "bg-orange-100 text-orange-800",
+    EAP: "bg-cyan-100 text-cyan-800",
     OUTROS: "bg-gray-100 text-gray-800",
   };
 
