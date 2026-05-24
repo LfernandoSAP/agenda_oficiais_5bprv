@@ -44,7 +44,11 @@ export const usuarioSchema = z.object({
   re: reSchema,
   nomeCompleto: z.string().min(3, "Nome obrigatório"),
   posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM"]),
-  email: z.string().email("E-mail inválido").optional().or(z.literal("")),
+  email: z
+    .union([z.email("E-mail inválido"), z.literal(""), z.null()])
+    .optional(),
+  isAdmin: z.boolean().optional().default(false),
+  senha: z.string().min(6, "Senha mínima de 6 caracteres").optional(),
 });
 
 export const alterarSenhaSchema = z

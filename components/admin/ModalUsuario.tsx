@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { toast } from "sonner";
-import { X } from "lucide-react";
+import { X, ShieldCheck, User } from "lucide-react";
 import { formatarCPF, limparCPF } from "@/lib/cpf";
 
 const POSTOS = [
@@ -26,7 +26,14 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
   const [posto, setPosto] = useState(usuario?.posto ?? "TEN_PM");
   const [email, setEmail] = useState(usuario?.email ?? "");
   const [ativo, setAtivo] = useState(usuario?.ativo ?? true);
+  const [isAdmin, setIsAdmin] = useState<boolean>(usuario?.isAdmin ?? false);
+  const [senha, setSenha] = useState("");
+  const [confirmarSenha, setConfirmarSenha] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const eraAdmin = !!usuario?.isAdmin;
+  const promovendo = !eraAdmin && isAdmin;
+  const senhaObrigatoria = isAdmin && (!usuario || promovendo);
 
   function handleReChange(e: React.ChangeEvent<HTMLInputElement>) {
     let val = e.target.value.replace(/[^0-9A-Za-z-]/g, "").toUpperCase();
@@ -36,9 +43,18 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
   }
 
   async function handleSalvar() {
+    if (senhaObrigatoria && senha.length < 6) {
+      toast.error("Senha mínima de 6 caracteres");
+      return;
+    }
+    if (isAdmin && senha && senha !== confirmarSenha) {
+      toast.error("Senhas não conferem");
+      return;
+    }
+
     setLoading(true);
     try {
-      const payload = {
+      const payload: any = {
         id: usuario?.id,
         cpf: limparCPF(cpf),
         re,
@@ -46,7 +62,10 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
         posto,
         email: email || null,
         ativo,
+        isAdmin,
       };
+      if (isAdmin && senha) payload.senha = senha;
+
       const res = await fetch("/api/usuarios", {
         method: usuario ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
@@ -75,6 +94,41 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
 
         <div className="space-y-4">
           <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Tipo de acesso</label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setIsAdmin(false)}
+                className={
+                  "flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all " +
+                  (!isAdmin
+                    ? "border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f]"
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50")
+                }
+              >
+                <User size={16} /> Comum
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAdmin(true)}
+                className={
+                  "flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg border text-sm font-medium transition-all " +
+                  (isAdmin
+                    ? "border-purple-600 bg-purple-50 text-purple-700"
+                    : "border-gray-300 text-gray-600 hover:bg-gray-50")
+                }
+              >
+                <ShieldCheck size={16} /> Admin
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 mt-1">
+              {isAdmin
+                ? "Faz login com CPF + senha. Acesso ao painel administrativo."
+                : "Faz login com CPF + RE. Acesso apenas à própria agenda."}
+            </p>
+          </div>
+
+          <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
             <input
               type="text" value={cpf} maxLength={14}
@@ -102,6 +156,38 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
             <label className="block text-sm font-medium text-gray-700 mb-1">E-mail (opcional)</label>
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="oficial@pm.gov.br" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" />
           </div>
+
+          {isAdmin && (
+            <div className="border-t pt-4 space-y-3 bg-purple-50/40 -mx-6 px-6 py-4">
+              <p className="text-xs font-semibold text-purple-700 uppercase tracking-wide">
+                {senhaObrigatoria ? "Definir senha de acesso" : "Resetar senha (opcional)"}
+              </p>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {senhaObrigatoria ? "Senha" : "Nova senha (deixe em branco para manter)"}
+                </label>
+                <input
+                  type="password"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                  placeholder="Mínimo 6 caracteres"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                />
+              </div>
+              {senha && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Confirmar senha</label>
+                  <input
+                    type="password"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+
           {usuario && (
             <div className="flex items-center gap-3">
               <input type="checkbox" id="ativo" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="w-4 h-4" />
