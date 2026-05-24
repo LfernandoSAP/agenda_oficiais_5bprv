@@ -143,8 +143,8 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
             <input type="text" value={re} onChange={handleReChange} maxLength={8} placeholder="000000-X" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] uppercase" />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nome completo</label>
-            <input type="text" value={nomeCompleto} onChange={(e) => setNomeCompleto(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nome de guerra</label>
+            <input type="text" value={nomeCompleto} onChange={(e) => setNomeCompleto(e.target.value)} placeholder="Ex: Silva" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]" />
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Posto</label>
