@@ -4,6 +4,7 @@ import { prisma } from "./prisma";
 import bcrypt from "bcryptjs";
 import { limparCPF } from "./cpf";
 import { authConfig } from "./auth.config";
+import { checarRateLimit, registrarTentativa, extrairIp } from "./rateLimit";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   ...authConfig,
@@ -15,31 +16,54 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         re: { label: "RE" },
         senha: { label: "Senha", type: "password" },
       },
-      async authorize(credentials) {
+      async authorize(credentials, request) {
         const cpf = limparCPF((credentials?.cpf as string) ?? "");
         if (!cpf) return null;
 
+        const ipAddress = request instanceof Request ? extrairIp(request) : null;
+
+        const limite = await checarRateLimit(cpf, ipAddress);
+        if (limite.bloqueado) {
+          throw new Error(limite.motivo ?? "Muitas tentativas. Tente novamente em alguns minutos.");
+        }
+
         const user = await prisma.user.findFirst({ where: { cpf, ativo: true } });
-        if (!user) return null;
+        if (!user) {
+          await registrarTentativa({ cpf, ipAddress, sucesso: false, motivo: "Usuário não encontrado" });
+          return null;
+        }
 
         if (user.isAdmin) {
           const senha = (credentials?.senha as string) ?? "";
-          if (!user.passwordHash) return null;
+          if (!user.passwordHash) {
+            await registrarTentativa({ cpf, ipAddress, sucesso: false, motivo: "Admin sem senha" });
+            return null;
+          }
           const ok = await bcrypt.compare(senha, user.passwordHash);
-          if (!ok) return null;
+          if (!ok) {
+            await registrarTentativa({ cpf, ipAddress, sucesso: false, motivo: "Senha incorreta" });
+            return null;
+          }
         } else {
           const re = (credentials?.re as string) ?? "";
-          if (!re || user.re.toLowerCase() !== re.toLowerCase()) return null;
+          if (!re || user.re.toLowerCase() !== re.toLowerCase()) {
+            await registrarTentativa({ cpf, ipAddress, sucesso: false, motivo: "RE incorreto" });
+            return null;
+          }
         }
 
-        await prisma.auditLog.create({
-          data: {
-            userId: user.id,
-            acao: "LOGIN",
-            entidade: "User",
-            entidadeId: user.id,
-          },
-        });
+        await Promise.all([
+          registrarTentativa({ cpf, ipAddress, sucesso: true }),
+          prisma.auditLog.create({
+            data: {
+              userId: user.id,
+              acao: "LOGIN",
+              entidade: "User",
+              entidadeId: user.id,
+              ipAddress: ipAddress ?? undefined,
+            },
+          }),
+        ]);
 
         return {
           id: user.id,

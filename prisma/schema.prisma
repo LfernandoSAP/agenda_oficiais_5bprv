@@ -89,3 +89,15 @@ model AuditLog {
   @@index([userId])
   @@index([createdAt])
 }
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  cpf       String?
+  ipAddress String?
+  sucesso   Boolean  @default(false)
+  motivo    String?
+  createdAt DateTime @default(now())
+
+  @@index([cpf, createdAt])
+  @@index([ipAddress, createdAt])
+}
