@@ -43,7 +43,7 @@ export const usuarioSchema = z.object({
   cpf: cpfSchema,
   re: reSchema,
   nomeCompleto: z.string().min(2, "Nome de guerra obrigatório"),
-  posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM"]),
+  posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM", "P1"]),
   email: z
     .union([z.email("E-mail inválido"), z.literal(""), z.null()])
     .optional(),

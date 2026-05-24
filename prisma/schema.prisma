@@ -31,6 +31,7 @@ enum Posto {
   MAJ_PM
   CAP_PM
   TEN_PM
+  P1
 }
 
 model Agenda {

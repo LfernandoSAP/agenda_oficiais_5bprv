@@ -11,6 +11,7 @@ const POSTOS = [
   { value: "MAJ_PM", label: "Maj PM" },
   { value: "CAP_PM", label: "Cap PM" },
   { value: "TEN_PM", label: "Ten PM" },
+  { value: "P1", label: "P1" },
 ];
 
 interface Props {

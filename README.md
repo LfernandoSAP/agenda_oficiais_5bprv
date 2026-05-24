@@ -42,12 +42,11 @@ Aplicação web responsiva (mobile-first) para gestão de agenda semanal dos ofi
 🚫 **Sem `middleware.ts` / `proxy.ts`** — proteção de rota é feita em cada Server Component via `auth()`. Edge Runtime não aceita Prisma/bcrypt.
 
 ### Admin master inicial
-| Campo | Valor |
-|-------|-------|
-| CPF | `164.451.118-58` |
-| Senha | `[REDACTED]` |
+- **CPF:** definido no seed (`prisma/seed.ts`)
+- **Senha:** lida da env var `ADMIN_INITIAL_PASSWORD` no momento do seed — nunca commitada
+- ⚠️ **Trocar a senha após primeiro login** em Admin → Config
 
-⚠️ **Trocar a senha após primeiro login** em Admin → Config.
+🔒 Nunca commitar credenciais reais. Use `.env.local` (já no `.gitignore`).
 
 ---
 

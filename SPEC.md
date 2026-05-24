@@ -157,7 +157,7 @@ Criar um arquivo `prisma/seed.ts` que insere automaticamente o usuário admin ma
   nomeCompleto: "Administrador Master",
   posto: "CEL_PM",
   isAdmin: true,
-  passwordHash: bcrypt.hashSync("[REDACTED]", 10),
+  passwordHash: bcrypt.hashSync(process.env.ADMIN_INITIAL_PASSWORD!, 10),
   ativo: true
 }
 ```
@@ -334,7 +334,7 @@ Acessível apenas para `isAdmin = true`:
 ## ✅ CRITÉRIOS DE ACEITAÇÃO
 
 - [ ] Aplicação publicada no Vercel funciona com banco PostgreSQL
-- [ ] Admin master (CPF `16445111858` / senha `[REDACTED]`) faz login com sucesso
+- [ ] Admin master (CPF/senha definidos no seed via env vars) faz login com sucesso
 - [ ] Admin consegue cadastrar novo oficial pelo painel
 - [ ] Oficial consegue logar com CPF + RE
 - [ ] Oficial consegue cadastrar/editar/excluir sua escala semanal
