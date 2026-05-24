@@ -8,11 +8,12 @@ import { X } from "lucide-react";
 import { formatarData } from "@/lib/utils";
 
 const TIPOS = [
-  { value: "EXPEDIENTE_NORMAL", label: "Expediente Normal" },
-  { value: "FOLGA_SEMANAL", label: "Folga Semanal" },
-  { value: "FERIAS", label: "Férias" },
-  { value: "DISPENSA_MEDICA", label: "Dispensa Médica" },
   { value: "CURSO", label: "Curso/Capacitação" },
+  { value: "DISPENSA_MEDICA", label: "Dispensa Médica" },
+  { value: "EAP", label: "EAP" },
+  { value: "EXPEDIENTE_NORMAL", label: "Expediente Normal" },
+  { value: "FERIAS", label: "Férias" },
+  { value: "FOLGA_SEMANAL", label: "Folga Semanal" },
   { value: "MISSAO", label: "Missão/Operação" },
   { value: "OUTROS", label: "Outros" },
 ];

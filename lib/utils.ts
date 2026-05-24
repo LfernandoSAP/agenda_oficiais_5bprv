@@ -33,11 +33,12 @@ export function formatarPosto(posto: string): string {
 
 export function formatarTipoEscala(tipo: string): string {
   const map: Record<string, string> = {
-    EXPEDIENTE_NORMAL: "Exp. Normal",
-    FOLGA_SEMANAL: "Folga Semanal",
-    FERIAS: "Férias",
-    DISPENSA_MEDICA: "Dispensa Médica",
     CURSO: "Curso/Capacitação",
+    DISPENSA_MEDICA: "Dispensa Médica",
+    EAP: "EAP",
+    EXPEDIENTE_NORMAL: "Exp. Normal",
+    FERIAS: "Férias",
+    FOLGA_SEMANAL: "Folga Semanal",
     MISSAO: "Missão/Operação",
     OUTROS: "Outros",
   };
@@ -46,11 +47,12 @@ export function formatarTipoEscala(tipo: string): string {
 
 export function corTipoEscala(tipo: string): string {
   const map: Record<string, string> = {
-    EXPEDIENTE_NORMAL: "bg-green-100 text-green-800",
-    FOLGA_SEMANAL: "bg-yellow-100 text-yellow-800",
-    FERIAS: "bg-blue-100 text-blue-800",
-    DISPENSA_MEDICA: "bg-red-100 text-red-800",
     CURSO: "bg-purple-100 text-purple-800",
+    DISPENSA_MEDICA: "bg-red-100 text-red-800",
+    EAP: "bg-cyan-100 text-cyan-800",
+    EXPEDIENTE_NORMAL: "bg-green-100 text-green-800",
+    FERIAS: "bg-blue-100 text-blue-800",
+    FOLGA_SEMANAL: "bg-yellow-100 text-yellow-800",
     MISSAO: "bg-orange-100 text-orange-800",
     OUTROS: "bg-gray-100 text-gray-800",
   };
