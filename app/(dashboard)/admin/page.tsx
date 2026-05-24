@@ -22,8 +22,7 @@ export default async function AdminPage({ searchParams }: Props) {
 
   const [usuarios, agendasRaw, stats] = await Promise.all([
     prisma.user.findMany({
-      where: { ativo: true },
-      orderBy: [{ posto: "asc" }, { nomeCompleto: "asc" }],
+      orderBy: [{ ativo: "desc" }, { posto: "asc" }, { nomeCompleto: "asc" }],
     }),
     prisma.agenda.findMany({
       where: { data: { gte: inicio, lte: fim } },

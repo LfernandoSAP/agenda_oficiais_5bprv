@@ -160,7 +160,12 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
         </div>
 
         {tab === "grade" && (
-          <GradeConsolidada usuarios={usuarios} agendas={agendas} dias={dias} feriados={feriados} />
+          <GradeConsolidada
+            usuarios={usuarios.filter((u: any) => u.ativo)}
+            agendas={agendas}
+            dias={dias}
+            feriados={feriados}
+          />
         )}
 
         {tab === "usuarios" && (

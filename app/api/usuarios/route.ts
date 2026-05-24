@@ -28,9 +28,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Senha é obrigatória para administrador" }, { status: 400 });
     }
 
-    const exists = await prisma.user.findFirst({ where: { OR: [{ cpf }, { re }] } });
-    if (exists) {
-      return NextResponse.json({ error: "CPF ou RE já cadastrado" }, { status: 409 });
+    const existingCpf = await prisma.user.findUnique({ where: { cpf } });
+    const existingRe = await prisma.user.findUnique({ where: { re } });
+
+    if (existingCpf || existingRe) {
+      const conflito = existingCpf ?? existingRe!;
+      const campo =
+        existingCpf && existingRe && existingCpf.id === existingRe.id
+          ? "CPF e RE"
+          : existingCpf
+          ? "CPF"
+          : "RE";
+      const statusTxt = conflito.ativo ? "" : " (inativo — você pode reativá-lo na lista)";
+      return NextResponse.json(
+        { error: `${campo} já cadastrado para ${conflito.nomeCompleto}${statusTxt}` },
+        { status: 409 }
+      );
     }
 
     const passwordHash = isAdmin && senha ? await bcrypt.hash(senha, 10) : null;
