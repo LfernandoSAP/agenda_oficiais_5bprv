@@ -15,16 +15,27 @@ import { toast } from "sonner";
 
 type Tab = "grade" | "usuarios" | "logs" | "configuracoes";
 
+const UNIDADES_FILTRO = [
+  { value: "TODAS", label: "Todas as Cias" },
+  { value: "EM", label: "EM" },
+  { value: "CIA_1", label: "1ª Cia" },
+  { value: "CIA_2", label: "2ª Cia" },
+  { value: "CIA_3", label: "3ª Cia" },
+  { value: "CIA_4", label: "4ª Cia" },
+];
+
 interface Props {
   session: any;
   usuarios: any[];
+  usuariosGrade: any[];
   agendas: any[];
   feriados: Feriado[];
   totalOficiais: number;
   offset: number;
+  unidadeFiltro: string;
 }
 
-export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOficiais, offset }: Props) {
+export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feriados, totalOficiais, offset, unidadeFiltro }: Props) {
   const router = useRouter();
   const [tab, setTab] = useState<Tab>("grade");
   const [modalUsuario, setModalUsuario] = useState(false);
@@ -36,7 +47,14 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
   const pctLancado = totalOficiais > 0 ? Math.round((oficiosComAgenda / totalOficiais) * 100) : 0;
 
   function irParaSemana(novoOffset: number) {
-    router.push(`/admin?semana=${novoOffset}`);
+    const u = unidadeFiltro && unidadeFiltro !== "TODAS" ? `&unidade=${unidadeFiltro}` : "";
+    router.push(`/admin?semana=${novoOffset}${u}`);
+  }
+
+  function trocarUnidade(novaUnidade: string) {
+    const s = `semana=${offset}`;
+    const u = novaUnidade !== "TODAS" ? `&unidade=${novaUnidade}` : "";
+    router.push(`/admin?${s}${u}`);
   }
 
   const periodoLabel = `${format(inicio, "dd", { locale: ptBR })} a ${format(fim, "dd/MMM/yyyy", { locale: ptBR }).toUpperCase()}`;
@@ -149,19 +167,35 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-4 bg-white rounded-xl p-3 shadow-sm">
-          <button onClick={() => irParaSemana(offset - 1)} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ChevronLeft size={18} />
-          </button>
-          <p className="font-semibold text-[#1e3a5f] text-sm">Semana de {periodoLabel}</p>
-          <button onClick={() => irParaSemana(offset + 1)} className="p-2 hover:bg-gray-100 rounded-lg">
-            <ChevronRight size={18} />
-          </button>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 bg-white rounded-xl p-3 shadow-sm">
+          <div className="flex items-center justify-between sm:gap-4 flex-1">
+            <button onClick={() => irParaSemana(offset - 1)} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronLeft size={18} />
+            </button>
+            <p className="font-semibold text-[#1e3a5f] text-sm text-center">Semana de {periodoLabel}</p>
+            <button onClick={() => irParaSemana(offset + 1)} className="p-2 hover:bg-gray-100 rounded-lg">
+              <ChevronRight size={18} />
+            </button>
+          </div>
+          {tab === "grade" && (
+            <div className="flex items-center gap-2 sm:border-l sm:border-gray-200 sm:pl-4">
+              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Unidade:</label>
+              <select
+                value={unidadeFiltro}
+                onChange={(e) => trocarUnidade(e.target.value)}
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              >
+                {UNIDADES_FILTRO.map((u) => (
+                  <option key={u.value} value={u.value}>{u.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         {tab === "grade" && (
           <GradeConsolidada
-            usuarios={usuarios.filter((u: any) => u.ativo)}
+            usuarios={usuariosGrade.filter((u: any) => u.ativo)}
             agendas={agendas}
             dias={dias}
             feriados={feriados}
