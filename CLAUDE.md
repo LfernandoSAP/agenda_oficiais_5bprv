@@ -28,6 +28,60 @@ Este arquivo orienta sessões futuras do Claude Code trabalhando neste projeto. 
 
 ---
 
+## 🔑 Login (atualizado 26/MAI/2026 — só RE, sem CPF)
+
+**Fluxo:**
+- Comum: digita RE → entra direto em `/agenda`
+- Admin: digita RE → pede senha → entra em `/admin`
+
+**Por quê:** usuários preferem decorar o RE; CPF virou nullable. Login antigo (`verificar-cpf`) foi removido. Endpoint atual: `POST /api/auth/verificar-re`.
+
+**Rate limit:** `lib/rateLimit.ts` — 5 falhas/RE e 20 falhas/IP em 10 min, tabela `LoginAttempt` (campo `re`, antes era `cpf`).
+
+```ts
+// Auth (lib/auth.ts) — sempre por RE
+const user = await prisma.user.findFirst({ where: { re, ativo: true } });
+if (user.isAdmin) { /* bcrypt.compare(senha, hash) */ }
+```
+
+---
+
+## 🏛️ Unidades (novo 26/MAI/2026)
+
+Enum `Unidade { EM, CIA_1, CIA_2, CIA_3, CIA_4 }`. Campo `User.unidade` é **nullable**.
+
+Display: `formatarUnidade()` em `lib/utils.ts` retorna `"EM"`, `"1ª Cia"`, ..., `"4ª Cia"`, ou `"—"` para null.
+
+Filtro no painel admin via URL param `?unidade=CIA_1` — server filtra `prisma.user.findMany({ where: { unidade } })`.
+
+---
+
+## 🛡️ Admins não entram em estatísticas
+
+Na aba **Agenda de Oficiais** do painel admin:
+- Server passa **dois arrays**: `usuariosTodos` (para aba Usuários) e `usuariosGrade` (para grade — sem admins, com filtro de unidade aplicado).
+- `totalOficiais` count usa `where: { isAdmin: false, ativo: true, unidade? }`.
+
+❌ Não usar `usuariosTodos` no `GradeConsolidada`. Sempre `usuariosGrade`.
+
+---
+
+## 🚫 Bloqueio de dias passados (novo 26/MAI/2026)
+
+Não permitir agendar/alterar/excluir dias anteriores ao atual.
+
+**Server (`app/api/agenda/route.ts`):**
+```ts
+function ehDataPassada(dataIso: string): boolean {
+  return dataIso < dateKey(new Date());
+}
+// usar em POST (data nova), PUT (existing.data), DELETE (existing.data)
+```
+
+**UI:** `DiaCard.tsx` recebe `disabled={ehPassado}`, classes `opacity-50 grayscale cursor-not-allowed`, label "🔒 Dia encerrado". `AgendaSemanal.tsx` faz guard com `toast.error` antes de abrir modal.
+
+---
+
 ## 🔑 Padrões de código — manter
 
 ### Comparação de datas
@@ -55,7 +109,7 @@ const agendas = (await prisma.agenda.findMany({...})).map(a => ({
 - Quando precisar filtrar por campo não-único (ex: `ativo: true`): usar `findFirst`
 
 ### Mutations de agenda
-**Sempre `upsert`** em `POST /api/agenda`. A unique key é `userId_data`.
+**Sempre `upsert`** em `POST /api/agenda`. Unique key é `userId_data`.
 
 ```ts
 prisma.agenda.upsert({
@@ -79,7 +133,7 @@ if (!session.user.isAdmin) redirect("/agenda");  // se for /admin
 ```
 
 ### Try/catch nas API routes
-**Sempre** envolver em try/catch e logar erro:
+Sempre envolver em try/catch e logar erro:
 ```ts
 try {
   // ...
@@ -89,6 +143,9 @@ try {
   return NextResponse.json({ error: err?.message ?? "Erro interno" }, { status: 500 });
 }
 ```
+
+### Selects (UI)
+Sempre `text-gray-900` no `<select>` e em cada `<option>`. Sem isso, opções renderizam quase invisíveis em alguns navegadores.
 
 ---
 
@@ -106,9 +163,9 @@ try {
 | `logo_coin2.png` | quadrado | `w-{N} h-{N}` |
 | `logo_5rv.png` | quadrado | `w-{N} h-{N}` |
 
-⚠️ A asa em container quadrado fica visualmente pequena. Sempre usar pixel values explícitos.
+⚠️ Asa em container quadrado fica visualmente pequena. Sempre pixel values explícitos.
 
-### Tamanhos por página (atual)
+### Tamanhos por página
 Login: asa `w-[120px] h-[90px]` mobile / `w-[200px] h-[150px]` desktop
 /agenda + /admin: asa `w-[90px] h-[65px]` mobile / `w-[130px] h-[95px]` desktop
 
@@ -123,6 +180,10 @@ Login: asa `w-[120px] h-[90px]` mobile / `w-[200px] h-[150px]` desktop
 
 ### Mobile vs Desktop
 **Dois layouts separados** com `sm:hidden` e `hidden sm:flex` — não tentar fazer tudo num só responsivo.
+
+### Grade admin (painel)
+- **Zebra rows**: alternar `bg-white` / `bg-slate-100`, hover `bg-amber-50`
+- **Observação visível**: linha menor abaixo do badge do tipo, `text-[10px] italic line-clamp-3` + `title=` para hover completo
 
 ---
 
@@ -158,6 +219,18 @@ npx vercel alias <new-url> agenda-oficiais-5bprv.vercel.app
 3. Alias apontando pro deploy mais recente?
 4. Push foi para `main` (não `master`)?
 
+### ⚠️ Migrações de schema
+Vercel **não roda** `prisma db push` no build. Quando o schema mudar:
+- A) `npx prisma db push` fora da rede PM (DNS PM bloqueia 5432/6543 do AWS Supabase)
+- B) SQL no Supabase Dashboard → SQL Editor
+- C) Endpoint one-shot `/api/admin/migrate` (criar, rodar via curl com `MIGRATE_TOKEN`, deletar). Padrão usado em 26/MAI/2026.
+
+### Diagnóstico de erros runtime
+```bash
+npx vercel logs --status-code 500 --since 10m --no-follow --expand --no-branch
+npx vercel inspect --logs https://agenda-oficiais-5bprv.vercel.app
+```
+
 ---
 
 ## 🗄️ Banco (Supabase)
@@ -169,45 +242,50 @@ Senha tem `@pmr!sorocaba#` — chars especiais precisam URL-encoding:
 - `@` → `%40`, `#` → `%23`, `!` → `%21`
 - Resultado: `%40pmr%21sorocaba%23`
 
-### Schema
-- `User`: cpf único (só dígitos), re único, posto enum, isAdmin
+### Schema (atual)
+- `User`: **cpf nullable** (não usado mais como login), **re único** (login), posto enum, **unidade enum nullable**, isAdmin, passwordHash, ativo
 - `Agenda`: userId + data (unique compound), tipo enum, observacao
-- `Feriado`: existe mas **não é mais usada** (feriados são nativos em `lib/feriados.ts`)
+- `Feriado`: existe mas **não é mais usada** (feriados nativos em `lib/feriados.ts`)
 - `AuditLog`: registra todas as ações
+- `LoginAttempt`: rate limit. Campo `re` (era `cpf` antes de 26/MAI/2026)
 
 ⚠️ Campo `data: DateTime @db.Date` — armazena UTC midnight. Sempre `dateKey()` no client.
 
 ---
 
 ## 📋 Tipos de escala (TipoEscala enum)
-`EXPEDIENTE_NORMAL` · `FOLGA_SEMANAL` · `FERIAS` · `DISPENSA_MEDICA` · `CURSO` · `MISSAO` · `OUTROS`
+`CURSO` · `DISPENSA_MEDICA` · `EAP` · `EXPEDIENTE_NORMAL` · `FERIAS` · `FOLGA_SEMANAL` · `MISSAO` · `OUTROS`
 
-Cores definidas em `components/agenda/DiaCard.tsx`. Adicionar novo tipo requer:
+Cores em `components/agenda/DiaCard.tsx`. Adicionar novo tipo requer:
 1. Atualizar enum no `schema.prisma` + db push
 2. Adicionar no `lib/validators.ts` (agendaSchema enum)
 3. Adicionar mapping em `lib/utils.ts` (formatarTipoEscala, corTipoEscala)
 4. Adicionar cores em `DiaCard.tsx` (CORES_TIPO)
 5. Adicionar na legenda em `AgendaSemanal.tsx`
+6. Adicionar no select de `ModalAgenda.tsx`
+7. Adicionar nas cores da `GradeConsolidada` em `DashboardAdmin.tsx`
 
 ---
 
 ## 🎯 Postos (Posto enum)
-`CEL_PM` · `TEN_CEL_PM` · `MAJ_PM` · `CAP_PM` · `TEN_PM`
+`CEL_PM` · `TEN_CEL_PM` · `MAJ_PM` · `CAP_PM` · `TEN_PM` · `P1`
 
 Mapping para display em `lib/utils.ts` → `formatarPosto()`.
 
 ---
 
+## 🏛️ Unidades (Unidade enum)
+`EM` · `CIA_1` · `CIA_2` · `CIA_3` · `CIA_4`
+
+Display em `lib/utils.ts` → `formatarUnidade()` (`"EM"`, `"1ª Cia"`, ..., `"—"` se null).
+
+---
+
 ## 🇧🇷 Feriados
 
-Nativos via algoritmo Gregoriano de Páscoa em `lib/feriados.ts`. Funcionam para qualquer ano, offline.
+Nativos via algoritmo Gregoriano de Páscoa em `lib/feriados.ts`. Funcionam offline para qualquer ano.
 
 Atual: nacionais + Carnaval (-47/-48 da Páscoa) + Sexta Santa (-2) + Corpus Christi (+60) + Revolução Constitucionalista SP (9/jul).
-
-Para adicionar municipais (ex: aniversário de Sorocaba):
-```ts
-{ data: `${year}-08-15`, nome: "Aniversário de Sorocaba", tipo: "MUNICIPAL" }
-```
 
 ---
 
@@ -222,22 +300,39 @@ Para adicionar municipais (ex: aniversário de Sorocaba):
 | Edge Function unsupported modules | Middleware importando Prisma | remover middleware/proxy |
 | "P1012" Prisma error | Schema com `url` em datasource (Prisma 7) | downgrade para Prisma 5 |
 | Senha auth Supabase | Chars especiais não encodados | URL-encode `@#!` etc |
+| "column X does not exist" no runtime | Schema atualizado mas DB Supabase não migrou | Rodar SQL no Supabase Editor OU endpoint one-shot |
+| Opções de select transparentes | Cor de texto não definida | `text-gray-900` no select e options |
+| `P1001 Can't reach DB server` no `prisma db push` | DNS PM bloqueia Supabase | Rodar fora da rede PM ou via SQL Editor |
 
 ---
 
 ## 💬 Estilo de comunicação preferido pelo usuário
 
-- Caveman ultra (compactíssimo) está ativo nas sessões anteriores
-- Usuário prefere updates curtos com símbolos (✅ ⚠️ ❌)
+- Caveman ultra ativo nas sessões
+- Updates curtos com símbolos (✅ ⚠️ ❌)
 - Tabelas para listar mudanças
-- Pergunta antes de fazer mudanças grandes (DB migrations, dep upgrades)
+- Pergunta antes de fazer mudanças grandes (DB migrations, dep upgrades, mudanças visuais)
+- Mostra plano com tradeoffs (opção A/B/C) antes de aplicar quando há ambiguidade
 
 ---
 
 ## 📜 Histórico — para contexto
 
-Projeto criado do zero a partir do `SPEC.md`. Stack escolhido: Supabase (DB) + Vercel (hosting) — ambos tier free. Login via link/`.ics` (não OAuth Google) por simplicidade.
+Projeto criado do zero a partir do `SPEC.md`. Stack: Supabase (DB) + Vercel (hosting) — ambos tier free. Login via link/`.ics` (não OAuth Google).
 
-Visual baseado no portal interno do 5º BPRv (`frontendaplicacoes5bprvvercel-31aa2byqh.vercel.app`) — gradiente azul + dourado, brackets HUD, logos institucionais.
+Visual baseado no portal interno do 5º BPRv — gradiente azul + dourado, brackets HUD, logos institucionais.
 
-Bugs significativos resolvidos: timezone (UTC-3 vs `@db.Date`), Vercel framework não detectado, Next 16/Prisma 7 incompatíveis.
+### Marcos
+- **Inicial:** login CPF→RE/senha, 5 postos, 7 tipos de escala
+- **24/MAI:** EAP adicionado (cyan), rate limit (5/CPF, 20/IP), posto P1, label "Nome completo" → "Nome de guerra"
+- **26/MAI/2026 (mudança grande):**
+  - Login só por RE (CPF removido como identificador, virou campo opcional)
+  - Enum `Unidade` adicionado, campo `User.unidade`
+  - `LoginAttempt.cpf` renomeado para `re`
+  - Aba "Grade" renomeada para "Agenda de Oficiais"
+  - Grade admin: zebra rows + observações visíveis
+  - Bloqueio agendar/alterar/excluir dia passado (UI + server)
+  - Filtro Unidade no painel admin (URL `?unidade=`)
+  - Admins excluídos da grade e stats (continuam em Usuários)
+  - Selects com `text-gray-900` (opções estavam transparentes)
+  - DNS PM bloqueia Supabase — usou `/api/admin/migrate` one-shot
