@@ -95,10 +95,10 @@ export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
             <select
               value={tipo}
               onChange={(e) => setTipo(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-gray-900"
             >
               {TIPOS.map((t) => (
-                <option key={t.value} value={t.value}>{t.label}</option>
+                <option key={t.value} value={t.value} className="text-gray-900">{t.label}</option>
               ))}
             </select>
           </div>

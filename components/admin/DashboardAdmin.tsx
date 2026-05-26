@@ -183,10 +183,10 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
               <select
                 value={unidadeFiltro}
                 onChange={(e) => trocarUnidade(e.target.value)}
-                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]"
+                className="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-gray-900"
               >
                 {UNIDADES_FILTRO.map((u) => (
-                  <option key={u.value} value={u.value}>{u.label}</option>
+                  <option key={u.value} value={u.value} className="text-gray-900">{u.label}</option>
                 ))}
               </select>
             </div>

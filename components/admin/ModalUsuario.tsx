@@ -150,8 +150,8 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
-            <select value={unidade} onChange={(e) => setUnidade(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]">
-              {UNIDADES.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+            <select value={unidade} onChange={(e) => setUnidade(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-gray-900">
+              {UNIDADES.map((u) => <option key={u.value} value={u.value} className="text-gray-900">{u.label}</option>)}
             </select>
           </div>
           <div>
@@ -160,8 +160,8 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Posto</label>
-            <select value={posto} onChange={(e) => setPosto(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]">
-              {POSTOS.map((p) => <option key={p.value} value={p.value}>{p.label}</option>)}
+            <select value={posto} onChange={(e) => setPosto(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] text-gray-900">
+              {POSTOS.map((p) => <option key={p.value} value={p.value} className="text-gray-900">{p.label}</option>)}
             </select>
           </div>
           <div>
