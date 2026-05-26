@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 const WINDOW_MIN = 10;
-const MAX_PER_CPF = 5;
+const MAX_PER_RE = 5;
 const MAX_PER_IP = 20;
 
 export interface RateLimitResult {
@@ -11,15 +11,15 @@ export interface RateLimitResult {
 }
 
 export async function checarRateLimit(
-  cpf: string | null,
+  re: string | null,
   ipAddress: string | null
 ): Promise<RateLimitResult> {
   const desde = new Date(Date.now() - WINDOW_MIN * 60 * 1000);
 
-  const [falhasCpf, falhasIp] = await Promise.all([
-    cpf
+  const [falhasRe, falhasIp] = await Promise.all([
+    re
       ? prisma.loginAttempt.count({
-          where: { cpf, sucesso: false, createdAt: { gte: desde } },
+          where: { re, sucesso: false, createdAt: { gte: desde } },
         })
       : Promise.resolve(0),
     ipAddress
@@ -29,10 +29,10 @@ export async function checarRateLimit(
       : Promise.resolve(0),
   ]);
 
-  if (falhasCpf >= MAX_PER_CPF) {
+  if (falhasRe >= MAX_PER_RE) {
     return {
       bloqueado: true,
-      motivo: `Muitas tentativas para este CPF. Aguarde ${WINDOW_MIN} minutos.`,
+      motivo: `Muitas tentativas para este RE. Aguarde ${WINDOW_MIN} minutos.`,
       retryAfterSec: WINDOW_MIN * 60,
     };
   }
@@ -47,7 +47,7 @@ export async function checarRateLimit(
 }
 
 export async function registrarTentativa(args: {
-  cpf: string | null;
+  re: string | null;
   ipAddress: string | null;
   sucesso: boolean;
   motivo?: string;
@@ -55,7 +55,7 @@ export async function registrarTentativa(args: {
   try {
     await prisma.loginAttempt.create({
       data: {
-        cpf: args.cpf ?? undefined,
+        re: args.re ?? undefined,
         ipAddress: args.ipAddress ?? undefined,
         sucesso: args.sucesso,
         motivo: args.motivo,

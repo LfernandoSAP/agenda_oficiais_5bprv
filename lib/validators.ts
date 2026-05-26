@@ -11,17 +11,12 @@ export const reSchema = z
   .string()
   .regex(/^\d{6}-[0-9A-Za-z]$/, "RE inválido. Formato: 000000-X");
 
-export const loginCpfSchema = z.object({
-  cpf: cpfSchema,
-});
-
 export const loginReSchema = z.object({
-  cpf: cpfSchema,
   re: reSchema,
 });
 
 export const loginSenhaSchema = z.object({
-  cpf: cpfSchema,
+  re: reSchema,
   senha: z.string().min(1, "Senha obrigatória"),
 });
 
@@ -41,10 +36,10 @@ export const agendaSchema = z.object({
 });
 
 export const usuarioSchema = z.object({
-  cpf: cpfSchema,
   re: reSchema,
   nomeCompleto: z.string().min(2, "Nome de guerra obrigatório"),
   posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM", "P1"]),
+  unidade: z.enum(["EM", "CIA_1", "CIA_2", "CIA_3", "CIA_4"]).nullable().optional(),
   email: z
     .union([z.email("E-mail inválido"), z.literal(""), z.null()])
     .optional(),

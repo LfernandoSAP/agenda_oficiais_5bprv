@@ -4,6 +4,12 @@ import { prisma } from "@/lib/prisma";
 import { agendaSchema } from "@/lib/validators";
 import { isSaturday, isSunday } from "date-fns";
 import { getFeriadoEm } from "@/lib/feriados";
+import { dateKey } from "@/lib/dateKey";
+
+function ehDataPassada(dataIso: string): boolean {
+  const hoje = dateKey(new Date());
+  return dataIso < hoje;
+}
 
 async function logAudit(userId: string, acao: string, entidadeId: string, detalhes: any, ip: string) {
   try {
@@ -28,6 +34,9 @@ export async function POST(req: NextRequest) {
     }
 
     const { data, tipo, observacao } = parsed.data;
+    if (ehDataPassada(data)) {
+      return NextResponse.json({ error: "Não é permitido agendar dias anteriores ao atual" }, { status: 400 });
+    }
     const dataObj = new Date(data + "T12:00:00Z");
     const feriado = getFeriadoEm(data);
 
@@ -69,6 +78,10 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
     }
 
+    if (ehDataPassada(dateKey(existing.data))) {
+      return NextResponse.json({ error: "Não é permitido alterar agenda de dia anterior ao atual" }, { status: 400 });
+    }
+
     const { tipo, observacao } = parsed.data;
     const agenda = await prisma.agenda.update({
       where: { id },
@@ -97,6 +110,10 @@ export async function DELETE(req: NextRequest) {
     const existing = await prisma.agenda.findUnique({ where: { id } });
     if (!existing || existing.userId !== session.user.id) {
       return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    }
+
+    if (ehDataPassada(dateKey(existing.data))) {
+      return NextResponse.json({ error: "Não é permitido excluir agenda de dia anterior ao atual" }, { status: 400 });
     }
 
     await prisma.agenda.delete({ where: { id } });

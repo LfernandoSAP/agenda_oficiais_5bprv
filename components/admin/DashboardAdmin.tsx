@@ -7,7 +7,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { signOut } from "next-auth/react";
 import { LogOut, Users, BarChart3, FileText, Settings, ChevronLeft, ChevronRight } from "lucide-react";
-import { getSemana, formatarPosto, formatarTipoEscala, cn } from "@/lib/utils";
+import { getSemana, formatarPosto, formatarTipoEscala, formatarUnidade, cn } from "@/lib/utils";
 import { dateKey } from "@/lib/dateKey";
 import type { Feriado } from "@/lib/feriados";
 import { ModalUsuario } from "./ModalUsuario";
@@ -109,7 +109,7 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
       <div className="bg-white border-b sticky top-0 z-10">
         <div className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto">
           {[
-            { id: "grade", icon: <BarChart3 size={16} />, label: "Grade" },
+            { id: "grade", icon: <BarChart3 size={16} />, label: "Agenda de Oficiais" },
             { id: "usuarios", icon: <Users size={16} />, label: "Usuários" },
             { id: "logs", icon: <FileText size={16} />, label: "Logs" },
             { id: "configuracoes", icon: <Settings size={16} />, label: "Config" },
@@ -185,16 +185,18 @@ export function DashboardAdmin({ session, usuarios, agendas, feriados, totalOfic
                   <tr>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Nome</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Posto</th>
+                    <th className="text-left px-4 py-3 font-medium text-gray-600">Unidade</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">RE</th>
                     <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y">
-                  {usuarios.map((u) => (
-                    <tr key={u.id} className="hover:bg-gray-50">
+                  {usuarios.map((u, idx) => (
+                    <tr key={u.id} className={cn(idx % 2 === 0 ? "bg-white" : "bg-slate-100", "hover:bg-amber-50")}>
                       <td className="px-4 py-3 font-medium">{u.nomeCompleto}</td>
                       <td className="px-4 py-3 text-gray-600">{formatarPosto(u.posto)}</td>
+                      <td className="px-4 py-3 text-gray-600">{formatarUnidade(u.unidade)}</td>
                       <td className="px-4 py-3 text-gray-600 font-mono">{u.re}</td>
                       <td className="px-4 py-3">
                         <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", u.ativo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")}>
@@ -265,8 +267,15 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
           </tr>
         </thead>
         <tbody className="divide-y">
-          {usuarios.map((u: any) => (
-            <tr key={u.id} className="hover:bg-gray-50">
+          {usuarios.map((u: any, idx: number) => (
+            <tr
+              key={u.id}
+              className={cn(
+                "transition-colors",
+                idx % 2 === 0 ? "bg-white" : "bg-slate-100",
+                "hover:bg-amber-50"
+              )}
+            >
               <td className="px-3 py-2 font-medium">
                 <div>{u.nomeCompleto.split(" ")[0]}</div>
                 <div className="text-gray-400 font-normal">{formatarPosto(u.posto)}</div>
@@ -277,11 +286,21 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
                   (a: any) => a.userId === u.id && dateKey(a.data) === key
                 );
                 return (
-                  <td key={d.toISOString()} className="px-2 py-2 text-center">
+                  <td key={d.toISOString()} className="px-2 py-2 align-top text-center">
                     {agenda ? (
-                      <span className={cn("inline-block px-1.5 py-0.5 rounded text-[10px] font-medium", cores[agenda.tipo] ?? "bg-gray-100")}>
-                        {formatarTipoEscala(agenda.tipo).split("/")[0].trim()}
-                      </span>
+                      <div className="flex flex-col items-center gap-1">
+                        <span className={cn("inline-block px-1.5 py-0.5 rounded text-[10px] font-medium", cores[agenda.tipo] ?? "bg-gray-100")}>
+                          {formatarTipoEscala(agenda.tipo).split("/")[0].trim()}
+                        </span>
+                        {agenda.observacao && (
+                          <p
+                            className="text-[10px] text-gray-600 italic leading-tight max-w-[90px] line-clamp-3"
+                            title={agenda.observacao}
+                          >
+                            “{agenda.observacao}”
+                          </p>
+                        )}
+                      </div>
                     ) : (
                       <span className="text-gray-300">—</span>
                     )}

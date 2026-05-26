@@ -19,6 +19,18 @@ export function formatarData(data: Date, fmt = "dd/MM/yyyy") {
   return format(data, fmt, { locale: ptBR });
 }
 
+export function formatarUnidade(unidade: string | null | undefined): string {
+  if (!unidade) return "—";
+  const map: Record<string, string> = {
+    EM: "EM",
+    CIA_1: "1ª Cia",
+    CIA_2: "2ª Cia",
+    CIA_3: "3ª Cia",
+    CIA_4: "4ª Cia",
+  };
+  return map[unidade] ?? unidade;
+}
+
 export function formatarPosto(posto: string): string {
   const map: Record<string, string> = {
     CEL_PM: "Cel PM",

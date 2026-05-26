@@ -4,13 +4,11 @@ import bcrypt from "bcryptjs";
 const prisma = new PrismaClient();
 
 async function main() {
-  const cpf = process.env.ADMIN_INITIAL_CPF;
+  const re = process.env.ADMIN_INITIAL_RE ?? "000000-0";
   const senha = process.env.ADMIN_INITIAL_PASSWORD;
 
-  if (!cpf || cpf.replace(/\D/g, "").length !== 11) {
-    throw new Error(
-      "ADMIN_INITIAL_CPF ausente ou inválido. Defina no .env (11 dígitos)."
-    );
+  if (!/^\d{6}-[0-9A-Za-z]$/.test(re)) {
+    throw new Error("ADMIN_INITIAL_RE inválido. Formato: 000000-X.");
   }
   if (!senha || senha.length < 8) {
     throw new Error(
@@ -21,13 +19,13 @@ async function main() {
   const passwordHash = bcrypt.hashSync(senha, 10);
 
   await prisma.user.upsert({
-    where: { cpf: cpf.replace(/\D/g, "") },
+    where: { re },
     update: {},
     create: {
-      cpf: cpf.replace(/\D/g, ""),
-      re: "000000-0",
+      re,
       nomeCompleto: "Administrador Master",
       posto: "CEL_PM",
+      unidade: "EM",
       isAdmin: true,
       passwordHash,
       ativo: true,

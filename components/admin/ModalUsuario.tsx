@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
 import { X, ShieldCheck, User } from "lucide-react";
-import { formatarCPF, limparCPF } from "@/lib/cpf";
 
 const POSTOS = [
   { value: "CEL_PM", label: "Cel PM" },
@@ -14,6 +13,14 @@ const POSTOS = [
   { value: "P1", label: "P1" },
 ];
 
+const UNIDADES = [
+  { value: "EM", label: "EM" },
+  { value: "CIA_1", label: "1ª Cia" },
+  { value: "CIA_2", label: "2ª Cia" },
+  { value: "CIA_3", label: "3ª Cia" },
+  { value: "CIA_4", label: "4ª Cia" },
+];
+
 interface Props {
   usuario?: any;
   onClose: () => void;
@@ -21,10 +28,10 @@ interface Props {
 }
 
 export function ModalUsuario({ usuario, onClose, onSave }: Props) {
-  const [cpf, setCpf] = useState(usuario ? formatarCPF(usuario.cpf) : "");
   const [re, setRe] = useState(usuario?.re ?? "");
   const [nomeCompleto, setNomeCompleto] = useState(usuario?.nomeCompleto ?? "");
   const [posto, setPosto] = useState(usuario?.posto ?? "TEN_PM");
+  const [unidade, setUnidade] = useState(usuario?.unidade ?? "EM");
   const [email, setEmail] = useState(usuario?.email ?? "");
   const [ativo, setAtivo] = useState(usuario?.ativo ?? true);
   const [isAdmin, setIsAdmin] = useState<boolean>(usuario?.isAdmin ?? false);
@@ -44,6 +51,10 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
   }
 
   async function handleSalvar() {
+    if (!/^\d{6}-[0-9A-Za-z]$/.test(re)) {
+      toast.error("RE inválido. Formato: 000000-X");
+      return;
+    }
     if (senhaObrigatoria && senha.length < 6) {
       toast.error("Senha mínima de 6 caracteres");
       return;
@@ -57,10 +68,10 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
     try {
       const payload: any = {
         id: usuario?.id,
-        cpf: limparCPF(cpf),
         re,
         nomeCompleto,
         posto,
+        unidade,
         email: email || null,
         ativo,
         isAdmin,
@@ -124,24 +135,24 @@ export function ModalUsuario({ usuario, onClose, onSave }: Props) {
             </div>
             <p className="text-xs text-gray-500 mt-1">
               {isAdmin
-                ? "Faz login com CPF + senha. Acesso ao painel administrativo."
-                : "Faz login com CPF + RE. Acesso apenas à própria agenda."}
+                ? "Faz login com RE + senha. Acesso ao painel administrativo."
+                : "Faz login apenas com RE. Acesso apenas à própria agenda."}
             </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">RE</label>
             <input
-              type="text" value={cpf} maxLength={14}
-              onChange={(e) => setCpf(formatarCPF(e.target.value))}
-              disabled={!!usuario}
-              placeholder="000.000.000-00"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] disabled:bg-gray-50"
+              type="text" value={re} onChange={handleReChange} maxLength={8}
+              placeholder="000000-X"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] uppercase"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">RE</label>
-            <input type="text" value={re} onChange={handleReChange} maxLength={8} placeholder="000000-X" className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] uppercase" />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Unidade</label>
+            <select value={unidade} onChange={(e) => setUnidade(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]">
+              {UNIDADES.map((u) => <option key={u.value} value={u.value}>{u.label}</option>)}
+            </select>
           </div>
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Nome de guerra</label>

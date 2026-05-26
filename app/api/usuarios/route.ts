@@ -22,26 +22,17 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
 
-    const { cpf, re, nomeCompleto, posto, email, isAdmin, senha } = parsed.data;
+    const { re, nomeCompleto, posto, unidade, email, isAdmin, senha } = parsed.data;
 
     if (isAdmin && !senha) {
       return NextResponse.json({ error: "Senha é obrigatória para administrador" }, { status: 400 });
     }
 
-    const existingCpf = await prisma.user.findUnique({ where: { cpf } });
     const existingRe = await prisma.user.findUnique({ where: { re } });
-
-    if (existingCpf || existingRe) {
-      const conflito = existingCpf ?? existingRe!;
-      const campo =
-        existingCpf && existingRe && existingCpf.id === existingRe.id
-          ? "CPF e RE"
-          : existingCpf
-          ? "CPF"
-          : "RE";
-      const statusTxt = conflito.ativo ? "" : " (inativo — você pode reativá-lo na lista)";
+    if (existingRe) {
+      const statusTxt = existingRe.ativo ? "" : " (inativo — você pode reativá-lo na lista)";
       return NextResponse.json(
-        { error: `${campo} já cadastrado para ${conflito.nomeCompleto}${statusTxt}` },
+        { error: `RE já cadastrado para ${existingRe.nomeCompleto}${statusTxt}` },
         { status: 409 }
       );
     }
@@ -50,10 +41,10 @@ export async function POST(req: NextRequest) {
 
     const user = await prisma.user.create({
       data: {
-        cpf,
         re,
         nomeCompleto,
         posto: posto as any,
+        unidade: (unidade ?? null) as any,
         email: email || null,
         isAdmin: !!isAdmin,
         passwordHash,
@@ -93,7 +84,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
     }
 
-    const { re, nomeCompleto, posto, email, isAdmin, senha } = parsed.data;
+    const { re, nomeCompleto, posto, unidade, email, isAdmin, senha } = parsed.data;
 
     const promovendo = !existing.isAdmin && isAdmin;
     const rebaixando = existing.isAdmin && !isAdmin;
@@ -115,6 +106,7 @@ export async function PUT(req: NextRequest) {
         re,
         nomeCompleto,
         posto: posto as any,
+        unidade: (unidade ?? null) as any,
         email: email || null,
         ativo: ativo ?? existing.ativo,
         isAdmin: !!isAdmin,
@@ -134,7 +126,7 @@ export async function PUT(req: NextRequest) {
         entidadeId: id,
         detalhes: {
           antes: { ...existing, passwordHash: undefined },
-          depois: { re, nomeCompleto, posto, email, ativo, isAdmin: !!isAdmin },
+          depois: { re, nomeCompleto, posto, unidade, email, ativo, isAdmin: !!isAdmin },
         },
       },
     });

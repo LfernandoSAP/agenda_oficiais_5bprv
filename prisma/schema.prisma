@@ -10,10 +10,11 @@ datasource db {
 
 model User {
   id           String   @id @default(cuid())
-  cpf          String   @unique
+  cpf          String?  @unique
   re           String   @unique
   nomeCompleto String
   posto        Posto
+  unidade      Unidade?
   email        String?
   isAdmin      Boolean  @default(false)
   passwordHash String?
@@ -32,6 +33,14 @@ enum Posto {
   CAP_PM
   TEN_PM
   P1
+}
+
+enum Unidade {
+  EM
+  CIA_1
+  CIA_2
+  CIA_3
+  CIA_4
 }
 
 model Agenda {
@@ -93,12 +102,12 @@ model AuditLog {
 
 model LoginAttempt {
   id        String   @id @default(cuid())
-  cpf       String?
+  re        String?
   ipAddress String?
   sucesso   Boolean  @default(false)
   motivo    String?
   createdAt DateTime @default(now())
 
-  @@index([cpf, createdAt])
+  @@index([re, createdAt])
   @@index([ipAddress, createdAt])
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { format, isSaturday, isSunday } from "date-fns";
+import { toast } from "sonner";
 import { ptBR } from "date-fns/locale";
 import { getSemana, formatarPosto } from "@/lib/utils";
 import { dateKey } from "@/lib/dateKey";
@@ -45,6 +46,11 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
 
   function handleDiaClick(dia: Date) {
     const key = dateKey(dia);
+    const hojeKey = dateKey(new Date());
+    if (key < hojeKey) {
+      toast.error("Não é permitido agendar ou alterar dias anteriores ao atual");
+      return;
+    }
     const agenda = agendas.find((a) => dateKey(a.data) === key);
     const feriado = feriados.find((f) => f.data === key);
     const ehFimDeSemana = isSaturday(dia) || isSunday(dia);

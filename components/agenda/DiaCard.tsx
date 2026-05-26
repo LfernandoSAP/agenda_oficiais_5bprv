@@ -3,6 +3,7 @@
 import { format, isSaturday, isSunday, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { formatarTipoEscala, cn } from "@/lib/utils";
+import { dateKey } from "@/lib/dateKey";
 
 const CORES_TIPO: Record<string, { bg: string; badge: string; accent: string; emoji: string }> = {
   EXPEDIENTE_NORMAL: {
@@ -66,16 +67,21 @@ export function DiaCard({ dia, agenda, feriado, onClick }: Props) {
   const ehFimDeSemana = isSaturday(dia) || isSunday(dia);
   const ehEspecial = ehFimDeSemana || !!feriado;
   const hoje = isToday(dia);
+  const ehPassado = dateKey(dia) < dateKey(new Date());
 
   const cores = agenda ? CORES_TIPO[agenda.tipo] ?? CORES_TIPO.OUTROS : null;
 
   return (
     <button
       onClick={onClick}
+      disabled={ehPassado}
+      title={ehPassado ? "Não é permitido alterar dias anteriores" : undefined}
       className={cn(
-        "group w-full text-left p-4 rounded-2xl border-2 border-l-[6px] transition-all duration-200 hover:shadow-xl hover:-translate-y-0.5",
+        "group w-full text-left p-4 rounded-2xl border-2 border-l-[6px] transition-all duration-200",
+        !ehPassado && "hover:shadow-xl hover:-translate-y-0.5",
         cores ? `${cores.bg} ${cores.accent}` : "bg-white border-gray-200 border-l-[#c9a961] hover:border-[#1e3a5f]",
         ehEspecial && !agenda && "opacity-60",
+        ehPassado && "opacity-50 cursor-not-allowed grayscale",
         hoje && "ring-2 ring-[#c9a961] ring-offset-2"
       )}
     >
@@ -130,10 +136,14 @@ export function DiaCard({ dia, agenda, feriado, onClick }: Props) {
         </div>
       ) : (
         <div className="mt-2">
-          <p className="text-xs text-gray-400 italic">Toque para definir</p>
-          <div className="mt-1 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
-            <div className="h-full w-0 group-hover:w-full bg-[#c9a961] transition-all duration-500" />
-          </div>
+          <p className="text-xs text-gray-400 italic">
+            {ehPassado ? "🔒 Dia encerrado" : "Toque para definir"}
+          </p>
+          {!ehPassado && (
+            <div className="mt-1 h-1 w-full bg-gray-100 rounded-full overflow-hidden">
+              <div className="h-full w-0 group-hover:w-full bg-[#c9a961] transition-all duration-500" />
+            </div>
+          )}
         </div>
       )}
     </button>
