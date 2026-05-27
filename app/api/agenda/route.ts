@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { data, tipo, observacao } = parsed.data;
-    if (ehDataPassada(data)) {
+    if (ehDataPassada(data) && !session.user.isAdmin) {
       return NextResponse.json({ error: "Não é permitido agendar dias anteriores ao atual" }, { status: 400 });
     }
     const dataObj = new Date(data + "T12:00:00Z");
@@ -90,7 +90,7 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    if (ehDataPassada(dateKey(existing.data))) {
+    if (ehDataPassada(dateKey(existing.data)) && !session.user.isAdmin) {
       return NextResponse.json({ error: "Não é permitido alterar agenda de dia anterior ao atual" }, { status: 400 });
     }
 
@@ -126,7 +126,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
-    if (ehDataPassada(dateKey(existing.data))) {
+    if (ehDataPassada(dateKey(existing.data)) && !session.user.isAdmin) {
       return NextResponse.json({ error: "Não é permitido excluir agenda de dia anterior ao atual" }, { status: 400 });
     }
 

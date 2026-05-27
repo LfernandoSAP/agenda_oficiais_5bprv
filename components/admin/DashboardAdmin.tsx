@@ -51,11 +51,6 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   const { dias, inicio, fim } = getSemana(offset);
 
   function abrirModalAgenda(dia: Date, oficial: any, agenda: any | null) {
-    const key = dateKey(dia);
-    if (key < dateKey(new Date())) {
-      toast.error("Não é permitido alterar dias anteriores ao atual");
-      return;
-    }
     setModalAgenda({
       dia,
       userId: oficial.id,
@@ -366,11 +361,11 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                 return (
                   <td
                     key={d.toISOString()}
-                    onClick={() => !ehPassado && onCelClick?.(d, u, agenda ?? null)}
-                    title={ehPassado ? "Dia encerrado" : agenda ? "Clique para alterar" : "Clique para cadastrar"}
+                    onClick={() => onCelClick?.(d, u, agenda ?? null)}
+                    title={ehPassado ? "Dia encerrado — admin pode alterar" : agenda ? "Clique para alterar" : "Clique para cadastrar"}
                     className={cn(
-                      "px-2 py-2 align-top text-center transition-colors",
-                      ehPassado ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-amber-100"
+                      "px-2 py-2 align-top text-center transition-colors cursor-pointer hover:bg-amber-100",
+                      ehPassado && "opacity-70"
                     )}
                   >
                     {agenda ? (
