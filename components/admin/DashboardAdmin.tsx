@@ -78,7 +78,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50"
-      style={{ fontFamily: "'EB Garamond', Garamond, 'Times New Roman', serif", color: "#000" }}
+      style={{ fontFamily: "'Times New Roman', Times, serif", color: "#000", fontSize: "1.2em" }}
     >
       <header
         className="relative shadow-2xl"
