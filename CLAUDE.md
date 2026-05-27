@@ -254,7 +254,9 @@ Senha tem `@pmr!sorocaba#` — chars especiais precisam URL-encoding:
 ---
 
 ## 📋 Tipos de escala (TipoEscala enum)
-`CURSO` · `DISPENSA_MEDICA` · `EAP` · `EXPEDIENTE_NORMAL` · `FERIAS` · `FOLGA_SEMANAL` · `MISSAO` · `OUTROS`
+`CONVALESCENCA` · `CURSO` · `DEJEM` · `DISP_SERVICO` · `EAP` · `EXPEDIENTE_NORMAL` · `FERIAS` · `FOLGA` · `FOLGA_SEMANAL` · `LICENCA_PREMIO` · `LTS` · `MISSAO` · `OUTROS`
+
+> 27/MAI/2026: `DISPENSA_MEDICA` renomeado para `CONVALESCENCA`. Adicionados `DEJEM`, `DISP_SERVICO`, `FOLGA`, `LICENCA_PREMIO`, `LTS`. Ordem alfabética. Tipos exibidos sem barra (`Curso`, não `Curso/Capacitação`; `Missão`, não `Missão/Operação`; `Expediente Normal`).
 
 Cores em `components/agenda/DiaCard.tsx`. Adicionar novo tipo requer:
 1. Atualizar enum no `schema.prisma` + db push
@@ -325,6 +327,12 @@ Visual baseado no portal interno do 5º BPRv — gradiente azul + dourado, brack
 ### Marcos
 - **Inicial:** login CPF→RE/senha, 5 postos, 7 tipos de escala
 - **24/MAI:** EAP adicionado (cyan), rate limit (5/CPF, 20/IP), posto P1, label "Nome completo" → "Nome de guerra"
+- **27/MAI/2026:**
+  - `DISPENSA_MEDICA` → `CONVALESCENCA` (rename via ALTER TYPE)
+  - +5 tipos: `DEJEM`, `DISP_SERVICO`, `FOLGA`, `LICENCA_PREMIO`, `LTS` (total 13)
+  - Select em ordem alfabética; labels sem barra ("Curso" não "Curso/Capacitação")
+  - Migração via endpoint efêmero `/api/admin/migrate` com `MIGRATE_TOKEN` (depois removido)
+  - ⚠️ Env de token deve ser **non-sensitive** (`--no-sensitive`) ou Vercel CLI mascara como vazio no `pull`
 - **26/MAI/2026 (mudança grande):**
   - Login só por RE (CPF removido como identificador, virou campo opcional)
   - Enum `Unidade` adicionado, campo `User.unidade`

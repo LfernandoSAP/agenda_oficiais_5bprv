@@ -59,7 +59,7 @@ Aplicação web responsiva (mobile-first) para gestão de agenda semanal dos ofi
 
 ### Oficial (`/agenda`)
 - Cards da semana (Seg–Dom) com gradiente colorido por tipo de escala
-- 8 tipos: Exp. Normal, Folga Semanal, Férias, Dispensa Médica, Curso, Missão, EAP, Outros
+- 13 tipos (ordem alfabética): Convalescença, Curso, Dejem, Disp. Serviço, EAP, Expediente Normal, Férias, Folga, Folga Semanal, Licença Prêmio, LTS, Missão, Outros
 - Borda esquerda 6px + emoji temático por tipo
 - Feriados nacionais + Carnaval/Sexta Santa/Corpus Christi (nativos)
 - Sábado/Domingo/Feriados com modal de confirmação antes de agendar
@@ -216,13 +216,18 @@ A pipeline da Vercel **não roda** `prisma db push` automaticamente. Quando o sc
 ### Cards de agenda (por tipo)
 | Tipo | Gradient | Badge | Emoji |
 |------|----------|-------|-------|
-| EXPEDIENTE_NORMAL | emerald-50→green-50 | bg-emerald-500 | 💼 |
-| FOLGA_SEMANAL | amber-50→yellow-50 | bg-amber-500 | 🌴 |
-| FERIAS | sky-50→blue-50 | bg-sky-500 | ✈️ |
-| DISPENSA_MEDICA | rose-50→red-50 | bg-rose-500 | 🩺 |
+| CONVALESCENCA | rose-50→red-50 | bg-rose-500 | 🩺 |
 | CURSO | purple-50→violet-50 | bg-purple-500 | 📚 |
-| MISSAO | orange-50→amber-50 | bg-orange-500 | 🎯 |
+| DEJEM | indigo-50→blue-50 | bg-indigo-500 | 🌙 |
+| DISP_SERVICO | pink-50→rose-50 | bg-pink-500 | 🛡️ |
 | EAP | cyan-50→teal-50 | bg-cyan-500 | 🎓 |
+| EXPEDIENTE_NORMAL | emerald-50→green-50 | bg-emerald-500 | 💼 |
+| FERIAS | sky-50→blue-50 | bg-sky-500 | ✈️ |
+| FOLGA | lime-50→green-50 | bg-lime-500 | 🌿 |
+| FOLGA_SEMANAL | amber-50→yellow-50 | bg-amber-500 | 🌴 |
+| LICENCA_PREMIO | fuchsia-50→pink-50 | bg-fuchsia-500 | 🏅 |
+| LTS | red-50→rose-50 | bg-red-500 | 🏥 |
+| MISSAO | orange-50→amber-50 | bg-orange-500 | 🎯 |
 | OUTROS | slate-50→gray-50 | bg-slate-500 | 📋 |
 
 ### Detalhes
