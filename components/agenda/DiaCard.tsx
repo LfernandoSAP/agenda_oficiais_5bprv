@@ -6,25 +6,7 @@ import { formatarTipoEscala, cn } from "@/lib/utils";
 import { dateKey } from "@/lib/dateKey";
 
 const CORES_TIPO: Record<string, { bg: string; badge: string; accent: string; emoji: string }> = {
-  EXPEDIENTE_NORMAL: {
-    bg: "bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-300",
-    badge: "bg-emerald-500 text-white",
-    accent: "border-l-emerald-500",
-    emoji: "💼",
-  },
-  FOLGA_SEMANAL: {
-    bg: "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300",
-    badge: "bg-amber-500 text-white",
-    accent: "border-l-amber-500",
-    emoji: "🌴",
-  },
-  FERIAS: {
-    bg: "bg-gradient-to-br from-sky-50 to-blue-50 border-sky-300",
-    badge: "bg-sky-500 text-white",
-    accent: "border-l-sky-500",
-    emoji: "✈️",
-  },
-  DISPENSA_MEDICA: {
+  CONVALESCENCA: {
     bg: "bg-gradient-to-br from-rose-50 to-red-50 border-rose-300",
     badge: "bg-rose-500 text-white",
     accent: "border-l-rose-500",
@@ -36,17 +18,65 @@ const CORES_TIPO: Record<string, { bg: string; badge: string; accent: string; em
     accent: "border-l-purple-500",
     emoji: "📚",
   },
-  MISSAO: {
-    bg: "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-300",
-    badge: "bg-orange-500 text-white",
-    accent: "border-l-orange-500",
-    emoji: "🎯",
+  DEJEM: {
+    bg: "bg-gradient-to-br from-indigo-50 to-blue-50 border-indigo-300",
+    badge: "bg-indigo-500 text-white",
+    accent: "border-l-indigo-500",
+    emoji: "🌙",
+  },
+  DISP_SERVICO: {
+    bg: "bg-gradient-to-br from-pink-50 to-rose-50 border-pink-300",
+    badge: "bg-pink-500 text-white",
+    accent: "border-l-pink-500",
+    emoji: "🛡️",
   },
   EAP: {
     bg: "bg-gradient-to-br from-cyan-50 to-teal-50 border-cyan-300",
     badge: "bg-cyan-500 text-white",
     accent: "border-l-cyan-500",
     emoji: "🎓",
+  },
+  EXPEDIENTE_NORMAL: {
+    bg: "bg-gradient-to-br from-emerald-50 to-green-50 border-emerald-300",
+    badge: "bg-emerald-500 text-white",
+    accent: "border-l-emerald-500",
+    emoji: "💼",
+  },
+  FERIAS: {
+    bg: "bg-gradient-to-br from-sky-50 to-blue-50 border-sky-300",
+    badge: "bg-sky-500 text-white",
+    accent: "border-l-sky-500",
+    emoji: "✈️",
+  },
+  FOLGA: {
+    bg: "bg-gradient-to-br from-lime-50 to-green-50 border-lime-300",
+    badge: "bg-lime-500 text-white",
+    accent: "border-l-lime-500",
+    emoji: "🌿",
+  },
+  FOLGA_SEMANAL: {
+    bg: "bg-gradient-to-br from-amber-50 to-yellow-50 border-amber-300",
+    badge: "bg-amber-500 text-white",
+    accent: "border-l-amber-500",
+    emoji: "🌴",
+  },
+  LICENCA_PREMIO: {
+    bg: "bg-gradient-to-br from-fuchsia-50 to-pink-50 border-fuchsia-300",
+    badge: "bg-fuchsia-500 text-white",
+    accent: "border-l-fuchsia-500",
+    emoji: "🏅",
+  },
+  LTS: {
+    bg: "bg-gradient-to-br from-red-50 to-rose-50 border-red-300",
+    badge: "bg-red-500 text-white",
+    accent: "border-l-red-500",
+    emoji: "🏥",
+  },
+  MISSAO: {
+    bg: "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-300",
+    badge: "bg-orange-500 text-white",
+    accent: "border-l-orange-500",
+    emoji: "🎯",
   },
   OUTROS: {
     bg: "bg-gradient-to-br from-slate-50 to-gray-50 border-slate-300",

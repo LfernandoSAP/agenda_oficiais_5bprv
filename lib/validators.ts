@@ -23,12 +23,17 @@ export const loginSenhaSchema = z.object({
 export const agendaSchema = z.object({
   data: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Data inválida"),
   tipo: z.enum([
+    "CONVALESCENCA",
     "CURSO",
-    "DISPENSA_MEDICA",
+    "DEJEM",
+    "DISP_SERVICO",
     "EAP",
     "EXPEDIENTE_NORMAL",
     "FERIAS",
+    "FOLGA",
     "FOLGA_SEMANAL",
+    "LICENCA_PREMIO",
+    "LTS",
     "MISSAO",
     "OUTROS",
   ]),

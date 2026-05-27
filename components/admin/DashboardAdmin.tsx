@@ -271,14 +271,19 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
 
 function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
   const cores: Record<string, string> = {
-    EXPEDIENTE_NORMAL: "bg-green-100 text-green-800",
-    FOLGA_SEMANAL: "bg-yellow-100 text-yellow-800",
-    FERIAS: "bg-blue-100 text-blue-800",
-    DISPENSA_MEDICA: "bg-red-100 text-red-800",
+    CONVALESCENCA: "bg-rose-100 text-rose-800",
     CURSO: "bg-purple-100 text-purple-800",
-    MISSAO: "bg-orange-100 text-orange-800",
+    DEJEM: "bg-indigo-100 text-indigo-800",
+    DISP_SERVICO: "bg-pink-100 text-pink-800",
     EAP: "bg-cyan-100 text-cyan-800",
-    OUTROS: "bg-gray-100 text-gray-800",
+    EXPEDIENTE_NORMAL: "bg-emerald-100 text-emerald-800",
+    FERIAS: "bg-sky-100 text-sky-800",
+    FOLGA: "bg-lime-100 text-lime-800",
+    FOLGA_SEMANAL: "bg-amber-100 text-amber-800",
+    LICENCA_PREMIO: "bg-fuchsia-100 text-fuchsia-800",
+    LTS: "bg-red-100 text-red-800",
+    MISSAO: "bg-orange-100 text-orange-800",
+    OUTROS: "bg-slate-100 text-slate-800",
   };
 
   return (

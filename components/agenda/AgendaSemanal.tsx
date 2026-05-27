@@ -214,13 +214,18 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
           <p className="text-xs uppercase tracking-[0.2em] text-[#c9a961] font-semibold mb-3">Legenda</p>
           <div className="flex flex-wrap gap-2">
             {[
-              { label: "Exp. Normal", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-              { label: "Folga Semanal", cls: "bg-amber-100 text-amber-800 border-amber-300" },
-              { label: "Férias", cls: "bg-sky-100 text-sky-800 border-sky-300" },
-              { label: "Dispensa Médica", cls: "bg-rose-100 text-rose-800 border-rose-300" },
+              { label: "Convalescença", cls: "bg-rose-100 text-rose-800 border-rose-300" },
               { label: "Curso", cls: "bg-purple-100 text-purple-800 border-purple-300" },
-              { label: "Missão", cls: "bg-orange-100 text-orange-800 border-orange-300" },
+              { label: "Dejem", cls: "bg-indigo-100 text-indigo-800 border-indigo-300" },
+              { label: "Disp. Serviço", cls: "bg-pink-100 text-pink-800 border-pink-300" },
               { label: "EAP", cls: "bg-cyan-100 text-cyan-800 border-cyan-300" },
+              { label: "Expediente Normal", cls: "bg-emerald-100 text-emerald-800 border-emerald-300" },
+              { label: "Férias", cls: "bg-sky-100 text-sky-800 border-sky-300" },
+              { label: "Folga", cls: "bg-lime-100 text-lime-800 border-lime-300" },
+              { label: "Folga Semanal", cls: "bg-amber-100 text-amber-800 border-amber-300" },
+              { label: "Licença Prêmio", cls: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300" },
+              { label: "LTS", cls: "bg-red-100 text-red-800 border-red-300" },
+              { label: "Missão", cls: "bg-orange-100 text-orange-800 border-orange-300" },
               { label: "Outros", cls: "bg-slate-100 text-slate-800 border-slate-300" },
             ].map((t) => (
               <span key={t.label} className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${t.cls}`}>
