@@ -21,12 +21,22 @@ async function logAudit(userId: string, acao: string, entidadeId: string, detalh
   }
 }
 
+function resolveTargetUserId(body: any, session: any): string {
+  const target = body?.userId;
+  if (target && target !== session.user.id) {
+    if (!session.user.isAdmin) throw new Error("Somente admin pode alterar agenda de outro oficial");
+    return target;
+  }
+  return session.user.id;
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await auth();
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 });
 
     const body = await req.json();
+    const targetUserId = resolveTargetUserId(body, session);
     const parsed = agendaSchema.safeParse(body);
     if (!parsed.success) {
       console.error("validation error:", parsed.error.issues);
@@ -41,10 +51,10 @@ export async function POST(req: NextRequest) {
     const feriado = getFeriadoEm(data);
 
     const agenda = await prisma.agenda.upsert({
-      where: { userId_data: { userId: session.user.id, data: dataObj } },
+      where: { userId_data: { userId: targetUserId, data: dataObj } },
       update: { tipo: tipo as any, observacao },
       create: {
-        userId: session.user.id,
+        userId: targetUserId,
         data: dataObj,
         tipo: tipo as any,
         observacao,
@@ -54,7 +64,8 @@ export async function POST(req: NextRequest) {
     });
 
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    await logAudit(session.user.id, "CRIOU_OU_ALTEROU_AGENDA", agenda.id, { tipo, data }, ip);
+    const acao = targetUserId !== session.user.id ? "ADMIN_CRIOU_OU_ALTEROU_AGENDA" : "CRIOU_OU_ALTEROU_AGENDA";
+    await logAudit(session.user.id, acao, agenda.id, { tipo, data, targetUserId }, ip);
 
     return NextResponse.json(agenda, { status: 200 });
   } catch (err: any) {
@@ -74,8 +85,9 @@ export async function PUT(req: NextRequest) {
     if (!parsed.success) return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Dados inválidos" }, { status: 400 });
 
     const existing = await prisma.agenda.findUnique({ where: { id } });
-    if (!existing || existing.userId !== session.user.id) {
-      return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    if (!existing) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    if (existing.userId !== session.user.id && !session.user.isAdmin) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
     if (ehDataPassada(dateKey(existing.data))) {
@@ -89,7 +101,8 @@ export async function PUT(req: NextRequest) {
     });
 
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    await logAudit(session.user.id, "ALTEROU_AGENDA", id, { antes: existing, depois: { tipo, observacao } }, ip);
+    const acao = existing.userId !== session.user.id ? "ADMIN_ALTEROU_AGENDA" : "ALTEROU_AGENDA";
+    await logAudit(session.user.id, acao, id, { antes: existing, depois: { tipo, observacao } }, ip);
 
     return NextResponse.json(agenda);
   } catch (err: any) {
@@ -108,8 +121,9 @@ export async function DELETE(req: NextRequest) {
     if (!id) return NextResponse.json({ error: "ID obrigatório" }, { status: 400 });
 
     const existing = await prisma.agenda.findUnique({ where: { id } });
-    if (!existing || existing.userId !== session.user.id) {
-      return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    if (!existing) return NextResponse.json({ error: "Não encontrado" }, { status: 404 });
+    if (existing.userId !== session.user.id && !session.user.isAdmin) {
+      return NextResponse.json({ error: "Não autorizado" }, { status: 403 });
     }
 
     if (ehDataPassada(dateKey(existing.data))) {
@@ -119,7 +133,8 @@ export async function DELETE(req: NextRequest) {
     await prisma.agenda.delete({ where: { id } });
 
     const ip = req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "unknown";
-    await logAudit(session.user.id, "DELETOU_AGENDA", id, existing, ip);
+    const acao = existing.userId !== session.user.id ? "ADMIN_DELETOU_AGENDA" : "DELETOU_AGENDA";
+    await logAudit(session.user.id, acao, id, existing, ip);
 
     return NextResponse.json({ ok: true });
   } catch (err: any) {

@@ -11,6 +11,7 @@ import { getSemana, formatarPosto, formatarTipoEscala, formatarUnidade, cn } fro
 import { dateKey } from "@/lib/dateKey";
 import type { Feriado } from "@/lib/feriados";
 import { ModalUsuario } from "./ModalUsuario";
+import { ModalAgenda } from "../agenda/ModalAgenda";
 import { toast } from "sonner";
 
 type Tab = "grade" | "usuarios" | "logs" | "configuracoes";
@@ -40,8 +41,28 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   const [tab, setTab] = useState<Tab>("grade");
   const [modalUsuario, setModalUsuario] = useState(false);
   const [usuarioEdit, setUsuarioEdit] = useState<any>(null);
+  const [modalAgenda, setModalAgenda] = useState<null | {
+    dia: Date;
+    userId: string;
+    nomeOficial: string;
+    agenda: any | null;
+  }>(null);
 
   const { dias, inicio, fim } = getSemana(offset);
+
+  function abrirModalAgenda(dia: Date, oficial: any, agenda: any | null) {
+    const key = dateKey(dia);
+    if (key < dateKey(new Date())) {
+      toast.error("Não é permitido alterar dias anteriores ao atual");
+      return;
+    }
+    setModalAgenda({
+      dia,
+      userId: oficial.id,
+      nomeOficial: `${formatarPosto(oficial.posto)} ${oficial.nomeCompleto}`,
+      agenda,
+    });
+  }
 
   const oficiosComAgenda = new Set(agendas.map((a) => a.userId)).size;
   const pctLancado = totalOficiais > 0 ? Math.round((oficiosComAgenda / totalOficiais) * 100) : 0;
@@ -60,7 +81,10 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   const periodoLabel = `${format(inicio, "dd", { locale: ptBR })} a ${format(fim, "dd/MMM/yyyy", { locale: ptBR }).toUpperCase()}`;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50">
+    <div
+      className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50"
+      style={{ fontFamily: "'EB Garamond', Garamond, 'Times New Roman', serif", color: "#000" }}
+    >
       <header
         className="relative shadow-2xl"
         style={{ background: "linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)" }}
@@ -136,10 +160,10 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
               key={t.id}
               onClick={() => setTab(t.id as Tab)}
               className={cn(
-                "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition-colors",
+                "flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 whitespace-nowrap transition-colors",
                 tab === t.id
-                  ? "border-[#1e3a5f] text-[#1e3a5f]"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                  ? "border-[#c9a961] text-[#1e3a5f]"
+                  : "border-transparent text-black hover:text-[#1e3a5f]"
               )}
             >
               {t.icon} {t.label}
@@ -150,19 +174,19 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
 
       <main className="max-w-7xl mx-auto px-4 py-6">
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-gray-500">Total de oficiais</p>
+          <div className="bg-white rounded-xl p-4 shadow-md border border-[#c9a961]/30">
+            <p className="text-xs font-bold uppercase tracking-wider text-black">Total de oficiais</p>
             <p className="text-3xl font-bold text-[#1e3a5f]">{totalOficiais}</p>
           </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm">
-            <p className="text-xs text-gray-500">Agendas na semana</p>
+          <div className="bg-white rounded-xl p-4 shadow-md border border-[#c9a961]/30">
+            <p className="text-xs font-bold uppercase tracking-wider text-black">Agendas na semana</p>
             <p className="text-3xl font-bold text-[#1e3a5f]">{agendas.length}</p>
           </div>
-          <div className="bg-white rounded-xl p-4 shadow-sm col-span-2 sm:col-span-1">
-            <p className="text-xs text-gray-500">Lançaram esta semana</p>
-            <p className="text-3xl font-bold text-green-600">{pctLancado}%</p>
+          <div className="bg-white rounded-xl p-4 shadow-md border border-[#c9a961]/30 col-span-2 sm:col-span-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-black">Lançaram esta semana</p>
+            <p className="text-3xl font-bold text-emerald-700">{pctLancado}%</p>
             <div className="w-full bg-gray-200 rounded-full h-1.5 mt-2">
-              <div className="bg-green-500 h-1.5 rounded-full" style={{ width: `${pctLancado}%` }} />
+              <div className="bg-emerald-500 h-1.5 rounded-full" style={{ width: `${pctLancado}%` }} />
             </div>
           </div>
         </div>
@@ -179,7 +203,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
           </div>
           {tab === "grade" && (
             <div className="flex items-center gap-2 sm:border-l sm:border-gray-200 sm:pl-4">
-              <label className="text-xs text-gray-500 uppercase tracking-wider font-semibold whitespace-nowrap">Unidade:</label>
+              <label className="text-xs text-black uppercase tracking-wider font-bold whitespace-nowrap">Unidade:</label>
               <select
                 value={unidadeFiltro}
                 onChange={(e) => trocarUnidade(e.target.value)}
@@ -199,6 +223,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
             agendas={agendas}
             dias={dias}
             feriados={feriados}
+            onCelClick={abrirModalAgenda}
           />
         )}
 
@@ -213,25 +238,25 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
                 + Cadastrar oficial
               </button>
             </div>
-            <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden border border-[#c9a961]/30">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 border-b">
+                <thead className="bg-gray-100 border-b border-gray-300">
                   <tr>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Nome</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Posto</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Unidade</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">RE</th>
-                    <th className="text-left px-4 py-3 font-medium text-gray-600">Status</th>
+                    <th className="text-left px-4 py-3 font-bold text-black">Nome</th>
+                    <th className="text-left px-4 py-3 font-bold text-black">Posto</th>
+                    <th className="text-left px-4 py-3 font-bold text-black">Unidade</th>
+                    <th className="text-left px-4 py-3 font-bold text-black">RE</th>
+                    <th className="text-left px-4 py-3 font-bold text-black">Status</th>
                     <th className="px-4 py-3" />
                   </tr>
                 </thead>
                 <tbody className="divide-y">
                   {usuarios.map((u, idx) => (
                     <tr key={u.id} className={cn(idx % 2 === 0 ? "bg-white" : "bg-slate-100", "hover:bg-amber-50")}>
-                      <td className="px-4 py-3 font-medium">{u.nomeCompleto}</td>
-                      <td className="px-4 py-3 text-gray-600">{formatarPosto(u.posto)}</td>
-                      <td className="px-4 py-3 text-gray-600">{formatarUnidade(u.unidade)}</td>
-                      <td className="px-4 py-3 text-gray-600 font-mono">{u.re}</td>
+                      <td className="px-4 py-3 font-bold text-black">{u.nomeCompleto}</td>
+                      <td className="px-4 py-3 text-black">{formatarPosto(u.posto)}</td>
+                      <td className="px-4 py-3 text-black">{formatarUnidade(u.unidade)}</td>
+                      <td className="px-4 py-3 text-black font-mono">{u.re}</td>
                       <td className="px-4 py-3">
                         <span className={cn("px-2 py-0.5 rounded-full text-xs font-medium", u.ativo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700")}>
                           {u.ativo ? "Ativo" : "Inativo"}
@@ -265,41 +290,54 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
           onSave={() => { setModalUsuario(false); router.refresh(); }}
         />
       )}
+
+      {modalAgenda && (
+        <ModalAgenda
+          dia={modalAgenda.dia}
+          agenda={modalAgenda.agenda}
+          userId={modalAgenda.userId}
+          nomeOficial={modalAgenda.nomeOficial}
+          onClose={() => setModalAgenda(null)}
+          onSave={() => { setModalAgenda(null); router.refresh(); }}
+        />
+      )}
     </div>
   );
 }
 
-function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
+function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any) {
   const cores: Record<string, string> = {
-    CONVALESCENCA: "bg-rose-100 text-rose-800",
-    CURSO: "bg-purple-100 text-purple-800",
-    DEJEM: "bg-indigo-100 text-indigo-800",
-    DISP_SERVICO: "bg-pink-100 text-pink-800",
-    EAP: "bg-cyan-100 text-cyan-800",
-    EXPEDIENTE_NORMAL: "bg-emerald-100 text-emerald-800",
-    FERIAS: "bg-sky-100 text-sky-800",
-    FOLGA: "bg-lime-100 text-lime-800",
-    FOLGA_SEMANAL: "bg-amber-100 text-amber-800",
-    LICENCA_PREMIO: "bg-fuchsia-100 text-fuchsia-800",
-    LTS: "bg-red-100 text-red-800",
-    MISSAO: "bg-orange-100 text-orange-800",
-    OUTROS: "bg-slate-100 text-slate-800",
+    CONVALESCENCA: "bg-rose-200 text-rose-900",
+    CURSO: "bg-purple-200 text-purple-900",
+    DEJEM: "bg-indigo-200 text-indigo-900",
+    DISP_SERVICO: "bg-pink-200 text-pink-900",
+    EAP: "bg-cyan-200 text-cyan-900",
+    EXPEDIENTE_NORMAL: "bg-emerald-200 text-emerald-900",
+    FERIAS: "bg-sky-200 text-sky-900",
+    FOLGA: "bg-lime-200 text-lime-900",
+    FOLGA_SEMANAL: "bg-amber-200 text-amber-900",
+    LICENCA_PREMIO: "bg-fuchsia-200 text-fuchsia-900",
+    LTS: "bg-red-200 text-red-900",
+    MISSAO: "bg-orange-200 text-orange-900",
+    OUTROS: "bg-slate-200 text-slate-900",
   };
+
+  const hojeKey = dateKey(new Date());
 
   return (
     <div className="overflow-x-auto rounded-xl shadow-sm">
       <table className="w-full text-xs bg-white">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-gray-100 border-b border-gray-300">
           <tr>
-            <th className="text-left px-3 py-3 font-medium text-gray-600 min-w-[140px]">Oficial</th>
+            <th className="text-left px-3 py-3 font-bold text-black min-w-[140px]">Oficial</th>
             {dias.map((d: Date) => {
               const key = dateKey(d);
               const feriado = feriados.find((f: Feriado) => f.data === key);
               return (
-                <th key={d.toISOString()} className="px-2 py-3 font-medium text-gray-600 min-w-[90px]">
+                <th key={d.toISOString()} className="px-2 py-3 font-bold text-black min-w-[90px]">
                   <div>{format(d, "EEE", { locale: ptBR })}</div>
-                  <div className="text-gray-400">{format(d, "dd/MM")}</div>
-                  {feriado && <div className="text-purple-500 text-[10px] truncate max-w-[80px]">{feriado.nome}</div>}
+                  <div className="text-gray-700">{format(d, "dd/MM")}</div>
+                  {feriado && <div className="text-purple-700 text-[10px] truncate max-w-[80px] font-semibold">{feriado.nome}</div>}
                 </th>
               );
             })}
@@ -315,25 +353,34 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
                 "hover:bg-amber-50"
               )}
             >
-              <td className="px-3 py-2 font-medium">
+              <td className="px-3 py-2 font-bold text-black">
                 <div>{u.nomeCompleto.split(" ")[0]}</div>
-                <div className="text-gray-400 font-normal">{formatarPosto(u.posto)}</div>
+                <div className="text-gray-700 font-normal">{formatarPosto(u.posto)}</div>
               </td>
               {dias.map((d: Date) => {
                 const key = dateKey(d);
                 const agenda = agendas.find(
                   (a: any) => a.userId === u.id && dateKey(a.data) === key
                 );
+                const ehPassado = key < hojeKey;
                 return (
-                  <td key={d.toISOString()} className="px-2 py-2 align-top text-center">
+                  <td
+                    key={d.toISOString()}
+                    onClick={() => !ehPassado && onCelClick?.(d, u, agenda ?? null)}
+                    title={ehPassado ? "Dia encerrado" : agenda ? "Clique para alterar" : "Clique para cadastrar"}
+                    className={cn(
+                      "px-2 py-2 align-top text-center transition-colors",
+                      ehPassado ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-amber-100"
+                    )}
+                  >
                     {agenda ? (
                       <div className="flex flex-col items-center gap-1">
-                        <span className={cn("inline-block px-1.5 py-0.5 rounded text-[10px] font-medium", cores[agenda.tipo] ?? "bg-gray-100")}>
-                          {formatarTipoEscala(agenda.tipo).split("/")[0].trim()}
+                        <span className={cn("inline-block px-2 py-0.5 rounded font-bold text-[11px] shadow-sm", cores[agenda.tipo] ?? "bg-gray-200 text-black")}>
+                          {formatarTipoEscala(agenda.tipo)}
                         </span>
                         {agenda.observacao && (
                           <p
-                            className="text-[10px] text-gray-600 italic leading-tight max-w-[90px] line-clamp-3"
+                            className="text-[10px] text-black italic leading-tight max-w-[90px] line-clamp-3"
                             title={agenda.observacao}
                           >
                             “{agenda.observacao}”
@@ -341,7 +388,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados }: any) {
                         )}
                       </div>
                     ) : (
-                      <span className="text-gray-300">—</span>
+                      <span className="text-gray-400">—</span>
                     )}
                   </td>
                 );
@@ -379,25 +426,25 @@ function LogsAuditoria() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+    <div className="bg-white rounded-xl shadow-md overflow-hidden border border-[#c9a961]/30">
       <table className="w-full text-sm">
-        <thead className="bg-gray-50 border-b">
+        <thead className="bg-gray-100 border-b border-gray-300">
           <tr>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Data/Hora</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Usuário</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Ação</th>
-            <th className="text-left px-4 py-3 font-medium text-gray-600">Entidade</th>
+            <th className="text-left px-4 py-3 font-bold text-black">Data/Hora</th>
+            <th className="text-left px-4 py-3 font-bold text-black">Usuário</th>
+            <th className="text-left px-4 py-3 font-bold text-black">Ação</th>
+            <th className="text-left px-4 py-3 font-bold text-black">Entidade</th>
           </tr>
         </thead>
         <tbody className="divide-y">
           {logs.map((l: any) => (
-            <tr key={l.id} className="hover:bg-gray-50">
-              <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+            <tr key={l.id} className="hover:bg-amber-50">
+              <td className="px-4 py-3 text-black text-xs whitespace-nowrap">
                 {format(new Date(l.createdAt), "dd/MM/yyyy HH:mm")}
               </td>
-              <td className="px-4 py-3">{l.user?.nomeCompleto ?? "—"}</td>
-              <td className="px-4 py-3 font-mono text-xs text-blue-600">{l.acao}</td>
-              <td className="px-4 py-3 text-gray-600">{l.entidade}</td>
+              <td className="px-4 py-3 text-black">{l.user?.nomeCompleto ?? "—"}</td>
+              <td className="px-4 py-3 font-mono text-xs text-blue-700 font-semibold">{l.acao}</td>
+              <td className="px-4 py-3 text-black">{l.entidade}</td>
             </tr>
           ))}
         </tbody>

@@ -27,11 +27,12 @@ interface Props {
   dia: Date;
   agenda?: { id: string; tipo: string; observacao: string | null } | null;
   userId: string;
+  nomeOficial?: string;
   onClose: () => void;
   onSave: () => void;
 }
 
-export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
+export function ModalAgenda({ dia, agenda, userId, nomeOficial, onClose, onSave }: Props) {
   const [tipo, setTipo] = useState(agenda?.tipo ?? "EXPEDIENTE_NORMAL");
   const [observacao, setObservacao] = useState(agenda?.observacao ?? "");
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           id: agenda?.id,
+          userId,
           data: format(dia, "yyyy-MM-dd"),
           tipo,
           observacao: observacao.trim() || null,
@@ -86,9 +88,16 @@ export function ModalAgenda({ dia, agenda, userId, onClose, onSave }: Props) {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-bold text-[#1e3a5f]">
-            {formatarData(dia, "EEEE, dd 'de' MMMM")}
-          </h2>
+          <div>
+            <h2 className="text-lg font-bold text-[#1e3a5f]">
+              {formatarData(dia, "EEEE, dd 'de' MMMM")}
+            </h2>
+            {nomeOficial && (
+              <p className="text-xs text-[#c9a961] font-semibold uppercase tracking-wider mt-0.5">
+                Oficial: {nomeOficial}
+              </p>
+            )}
+          </div>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X size={20} />
           </button>
