@@ -183,7 +183,13 @@ Login: asa `w-[120px] h-[90px]` mobile / `w-[200px] h-[150px]` desktop
 
 ### Grade admin (painel)
 - **Zebra rows**: alternar `bg-white` / `bg-slate-100`, hover `bg-amber-50`
-- **Observação visível**: linha menor abaixo do badge do tipo, `text-[10px] italic line-clamp-3` + `title=` para hover completo
+- **Observação visível**: linha abaixo do badge do tipo, `text-xs` (12px) + `font-family: Times New Roman serif` (inline) + `line-clamp-3` + `title=` para hover completo. Sem italic.
+- **Bordas da grade**: `border-collapse` no `<table>` + `border border-black` em todos `<th>`/`<td>` (preto, vertical+horizontal). Não usar `divide-y`.
+
+### Fontes globais
+- `/admin` root: **sans-serif** (`system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif`)
+- Observações (grade + modal): **Times New Roman serif** via inline style
+- Modal textarea obs: `text-base` (16px), sem italic
 
 ---
 
@@ -344,3 +350,9 @@ Visual baseado no portal interno do 5º BPRv — gradiente azul + dourado, brack
   - Admins excluídos da grade e stats (continuam em Usuários)
   - Selects com `text-gray-900` (opções estavam transparentes)
   - DNS PM bloqueia Supabase — usou `/api/admin/migrate` one-shot
+- **28/MAI/2026 (tipografia admin):**
+  - `/admin` root: Times New Roman → **sans-serif** (system-ui)
+  - Observações continuam em **Times New Roman serif** (grade display + modal textarea), inline style
+  - Removido `italic` das observações (Times regular fica mais legível)
+  - Observação grade: `text-[10px]` → `text-xs` (12px); textarea modal: `text-sm` → `text-base` (16px)
+  - Grade admin: tabela com `border-collapse` + `border border-black` em todas as células (substituiu `divide-y` cinza claro)
