@@ -126,7 +126,7 @@ export function ModalAgenda({ dia, agenda, userId, nomeOficial, onClose, onSave 
               onChange={(e) => setObservacao(e.target.value.slice(0, 200))}
               placeholder="Detalhes adicionais..."
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] resize-none text-sm"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f] resize-none text-base"
               style={{ fontFamily: "'Times New Roman', Times, serif" }}
             />
             <p className="text-xs text-gray-400 text-right">{observacao.length}/200</p>

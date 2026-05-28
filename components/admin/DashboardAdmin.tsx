@@ -375,7 +375,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                         </span>
                         {agenda.observacao && (
                           <p
-                            className="text-[10px] text-black italic leading-tight max-w-[90px] line-clamp-3"
+                            className="text-xs text-black leading-tight max-w-[90px] line-clamp-3"
                             title={agenda.observacao}
                             style={{ fontFamily: "'Times New Roman', Times, serif" }}
                           >
