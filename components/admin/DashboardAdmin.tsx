@@ -78,7 +78,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   return (
     <div
       className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-amber-50"
-      style={{ fontFamily: "'Times New Roman', Times, serif", color: "#000", fontSize: "1.2em" }}
+      style={{ fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif", color: "#000", fontSize: "1.2em" }}
     >
       <header
         className="relative shadow-2xl"
@@ -321,15 +321,15 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
 
   return (
     <div className="overflow-x-auto rounded-xl shadow-sm">
-      <table className="w-full text-xs bg-white">
-        <thead className="bg-gray-100 border-b border-gray-300">
+      <table className="w-full text-xs bg-white border-collapse border border-black">
+        <thead className="bg-gray-100">
           <tr>
-            <th className="text-left px-3 py-3 font-bold text-black min-w-[140px]">Oficial</th>
+            <th className="text-left px-3 py-3 font-bold text-black min-w-[140px] border border-black">Oficial</th>
             {dias.map((d: Date) => {
               const key = dateKey(d);
               const feriado = feriados.find((f: Feriado) => f.data === key);
               return (
-                <th key={d.toISOString()} className="px-2 py-3 font-bold text-black min-w-[90px]">
+                <th key={d.toISOString()} className="px-2 py-3 font-bold text-black min-w-[90px] border border-black">
                   <div>{format(d, "EEE", { locale: ptBR })}</div>
                   <div className="text-gray-700">{format(d, "dd/MM")}</div>
                   {feriado && <div className="text-purple-700 text-[10px] truncate max-w-[80px] font-semibold">{feriado.nome}</div>}
@@ -338,7 +338,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
             })}
           </tr>
         </thead>
-        <tbody className="divide-y">
+        <tbody>
           {usuarios.map((u: any, idx: number) => (
             <tr
               key={u.id}
@@ -348,7 +348,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                 "hover:bg-amber-50"
               )}
             >
-              <td className="px-3 py-2 font-bold text-black">
+              <td className="px-3 py-2 font-bold text-black border border-black">
                 <div>{u.nomeCompleto.split(" ")[0]}</div>
                 <div className="text-gray-700 font-normal">{formatarPosto(u.posto)}</div>
               </td>
@@ -364,7 +364,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                     onClick={() => onCelClick?.(d, u, agenda ?? null)}
                     title={ehPassado ? "Dia encerrado — admin pode alterar" : agenda ? "Clique para alterar" : "Clique para cadastrar"}
                     className={cn(
-                      "px-2 py-2 align-top text-center transition-colors cursor-pointer hover:bg-amber-100",
+                      "px-2 py-2 align-top text-center transition-colors cursor-pointer hover:bg-amber-100 border border-black",
                       ehPassado && "opacity-70"
                     )}
                   >
@@ -377,6 +377,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                           <p
                             className="text-[10px] text-black italic leading-tight max-w-[90px] line-clamp-3"
                             title={agenda.observacao}
+                            style={{ fontFamily: "'Times New Roman', Times, serif" }}
                           >
                             “{agenda.observacao}”
                           </p>
