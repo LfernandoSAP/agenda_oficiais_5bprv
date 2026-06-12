@@ -56,6 +56,7 @@ export function formatarTipoEscala(tipo: string): string {
     FOLGA_SEMANAL: "Folga Semanal",
     LICENCA_PREMIO: "Licença Prêmio",
     LTS: "LTS",
+    MEIO_EXPEDIENTE: "Meio Expediente",
     MISSAO: "Missão",
     OUTROS: "Outros",
   };
@@ -75,6 +76,7 @@ export function corTipoEscala(tipo: string): string {
     FOLGA_SEMANAL: "bg-amber-100 text-amber-800",
     LICENCA_PREMIO: "bg-fuchsia-100 text-fuchsia-800",
     LTS: "bg-red-100 text-red-800",
+    MEIO_EXPEDIENTE: "bg-teal-100 text-teal-800",
     MISSAO: "bg-orange-100 text-orange-800",
     OUTROS: "bg-slate-100 text-slate-800",
   };

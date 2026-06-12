@@ -72,6 +72,12 @@ const CORES_TIPO: Record<string, { bg: string; badge: string; accent: string; em
     accent: "border-l-red-500",
     emoji: "🏥",
   },
+  MEIO_EXPEDIENTE: {
+    bg: "bg-gradient-to-br from-teal-50 to-cyan-50 border-teal-300",
+    badge: "bg-teal-500 text-white",
+    accent: "border-l-teal-500",
+    emoji: "🕐",
+  },
   MISSAO: {
     bg: "bg-gradient-to-br from-orange-50 to-amber-50 border-orange-300",
     badge: "bg-orange-500 text-white",

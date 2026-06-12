@@ -225,6 +225,7 @@ export function AgendaSemanal({ session, agendas, feriados, offset }: Props) {
               { label: "Folga Semanal", cls: "bg-amber-100 text-amber-800 border-amber-300" },
               { label: "Licença Prêmio", cls: "bg-fuchsia-100 text-fuchsia-800 border-fuchsia-300" },
               { label: "LTS", cls: "bg-red-100 text-red-800 border-red-300" },
+              { label: "Meio Expediente", cls: "bg-teal-100 text-teal-800 border-teal-300" },
               { label: "Missão", cls: "bg-orange-100 text-orange-800 border-orange-300" },
               { label: "Outros", cls: "bg-slate-100 text-slate-800 border-slate-300" },
             ].map((t) => (

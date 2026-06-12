@@ -19,6 +19,7 @@ const TIPOS = [
   { value: "FOLGA_SEMANAL", label: "Folga Semanal" },
   { value: "LICENCA_PREMIO", label: "Licença Prêmio" },
   { value: "LTS", label: "LTS" },
+  { value: "MEIO_EXPEDIENTE", label: "Meio Expediente" },
   { value: "MISSAO", label: "Missão" },
   { value: "OUTROS", label: "Outros" },
 ];

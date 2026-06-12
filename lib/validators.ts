@@ -34,6 +34,7 @@ export const agendaSchema = z.object({
     "FOLGA_SEMANAL",
     "LICENCA_PREMIO",
     "LTS",
+    "MEIO_EXPEDIENTE",
     "MISSAO",
     "OUTROS",
   ]),

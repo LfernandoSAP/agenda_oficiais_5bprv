@@ -74,6 +74,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
   }
 
   const periodoLabel = `${format(inicio, "dd", { locale: ptBR })} a ${format(fim, "dd/MMM/yyyy", { locale: ptBR }).toUpperCase()}`;
+  const unidadeLabel = UNIDADES_FILTRO.find((u) => u.value === unidadeFiltro)?.label ?? "Todas as Cias";
 
   return (
     <div
@@ -81,7 +82,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
       style={{ fontFamily: "system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif", color: "#000", fontSize: "1.2em" }}
     >
       <header
-        className="relative shadow-2xl"
+        className="relative shadow-2xl print:hidden"
         style={{ background: "linear-gradient(135deg, #0a1f3d 0%, #1e3a5f 50%, #0a1f3d 100%)" }}
       >
         <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#c9a961] to-transparent" />
@@ -143,7 +144,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#c9a961]/50 to-transparent" />
       </header>
 
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-white border-b sticky top-0 z-10 print:hidden">
         <div className="max-w-7xl mx-auto px-4 flex gap-1 overflow-x-auto">
           {[
             { id: "grade", icon: <BarChart3 size={16} />, label: "Agenda de Oficiais" },
@@ -168,7 +169,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
       </div>
 
       <main className="max-w-7xl mx-auto px-4 py-6">
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6 print:hidden">
           <div className="bg-white rounded-xl p-4 shadow-md border border-[#c9a961]/30">
             <p className="text-xs font-bold uppercase tracking-wider text-black">Total de oficiais</p>
             <p className="text-3xl font-bold text-[#1e3a5f]">{totalOficiais}</p>
@@ -186,7 +187,7 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 bg-white rounded-xl p-3 shadow-sm">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 bg-white rounded-xl p-3 shadow-sm print:hidden">
           <div className="flex items-center justify-between sm:gap-4 flex-1">
             <button onClick={() => irParaSemana(offset - 1)} className="p-2 hover:bg-gray-100 rounded-lg">
               <ChevronLeft size={18} />
@@ -213,13 +214,48 @@ export function DashboardAdmin({ session, usuarios, usuariosGrade, agendas, feri
         </div>
 
         {tab === "grade" && (
-          <GradeConsolidada
-            usuarios={usuariosGrade.filter((u: any) => u.ativo)}
-            agendas={agendas}
-            dias={dias}
-            feriados={feriados}
-            onCelClick={abrirModalAgenda}
-          />
+          <>
+            <div className="flex justify-end mb-3 print:hidden">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 bg-[#1e3a5f] text-white px-4 py-2 rounded-lg text-sm font-bold hover:bg-[#2a4f7c] shadow-md"
+              >
+                🖨️ Imprimir / PDF
+              </button>
+            </div>
+
+            {/* Cabeçalho institucional — só na impressão */}
+            <div className="hidden print:block mb-4 border-b-2 border-[#1e3a5f] pb-3">
+              <div className="flex items-center justify-center gap-4 mb-2">
+                <div className="relative w-[78px] h-[57px] flex-shrink-0">
+                  <Image src="/imagens/asa_rodoviaria.png" alt="Asa" fill className="object-contain" />
+                </div>
+                <div className="relative w-14 h-14 flex-shrink-0">
+                  <Image src="/imagens/logo_coin2.png" alt="Brasão" fill className="object-contain" />
+                </div>
+                <div className="relative w-12 h-12 flex-shrink-0">
+                  <Image src="/imagens/logo_5rv.png" alt="5º BPRv" fill className="object-contain" />
+                </div>
+              </div>
+              <div className="text-center">
+                <p className="text-[#c9a961] text-xs uppercase tracking-[0.2em] font-bold">5º BPRv — Policiamento Rodoviário</p>
+                <h1 className="text-[#1e3a5f] font-bold text-xl" style={{ fontFamily: "Georgia, serif" }}>
+                  Agenda de Oficiais
+                </h1>
+                <p className="text-sm text-black mt-1">
+                  Semana de {periodoLabel} · Unidade: {unidadeLabel}
+                </p>
+              </div>
+            </div>
+
+            <GradeConsolidada
+              usuarios={usuariosGrade.filter((u: any) => u.ativo)}
+              agendas={agendas}
+              dias={dias}
+              feriados={feriados}
+              onCelClick={abrirModalAgenda}
+            />
+          </>
         )}
 
         {tab === "usuarios" && (
@@ -313,6 +349,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
     FOLGA_SEMANAL: "bg-amber-200 text-amber-900",
     LICENCA_PREMIO: "bg-fuchsia-200 text-fuchsia-900",
     LTS: "bg-red-200 text-red-900",
+    MEIO_EXPEDIENTE: "bg-teal-200 text-teal-900",
     MISSAO: "bg-orange-200 text-orange-900",
     OUTROS: "bg-slate-200 text-slate-900",
   };
@@ -320,7 +357,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
   const hojeKey = dateKey(new Date());
 
   return (
-    <div className="overflow-x-auto rounded-xl shadow-sm">
+    <div className="overflow-x-auto rounded-xl shadow-sm print:overflow-visible print:shadow-none">
       <table className="w-full text-xs bg-white border-collapse border border-black">
         <thead className="bg-gray-100">
           <tr>
@@ -375,7 +412,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
                         </span>
                         {agenda.observacao && (
                           <p
-                            className="text-xs text-black leading-tight max-w-[90px] line-clamp-3"
+                            className="text-xs text-black leading-tight max-w-[90px] line-clamp-3 print:line-clamp-none print:max-w-none print:whitespace-pre-line"
                             title={agenda.observacao}
                             style={{ fontFamily: "'Times New Roman', Times, serif" }}
                           >
