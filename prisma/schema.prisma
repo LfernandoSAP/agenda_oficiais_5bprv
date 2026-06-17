@@ -32,6 +32,7 @@ enum Posto {
   MAJ_PM
   CAP_PM
   TEN_PM
+  ASP_TEN_PM
   P1
 }
 

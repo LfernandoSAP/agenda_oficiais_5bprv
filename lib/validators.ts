@@ -44,7 +44,7 @@ export const agendaSchema = z.object({
 export const usuarioSchema = z.object({
   re: reSchema,
   nomeCompleto: z.string().min(2, "Nome de guerra obrigatório"),
-  posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM", "P1"]),
+  posto: z.enum(["CEL_PM", "TEN_CEL_PM", "MAJ_PM", "CAP_PM", "TEN_PM", "ASP_TEN_PM", "P1"]),
   unidade: z.enum(["EM", "CIA_1", "CIA_2", "CIA_3", "CIA_4"]).nullable().optional(),
   email: z
     .union([z.email("E-mail inválido"), z.literal(""), z.null()])

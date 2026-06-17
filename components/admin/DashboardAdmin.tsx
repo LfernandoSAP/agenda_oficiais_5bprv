@@ -386,7 +386,7 @@ function GradeConsolidada({ usuarios, agendas, dias, feriados, onCelClick }: any
               )}
             >
               <td className="px-3 py-2 font-bold text-black border border-black">
-                <div>{u.nomeCompleto.split(" ")[0]}</div>
+                <div>{u.nomeCompleto}</div>
                 <div className="text-gray-700 font-normal">{formatarPosto(u.posto)}</div>
               </td>
               {dias.map((d: Date) => {

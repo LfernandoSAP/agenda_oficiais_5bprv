@@ -10,6 +10,7 @@ const POSTOS = [
   { value: "MAJ_PM", label: "Maj PM" },
   { value: "CAP_PM", label: "Cap PM" },
   { value: "TEN_PM", label: "Ten PM" },
+  { value: "ASP_TEN_PM", label: "Asp Ten PM" },
   { value: "P1", label: "P1" },
 ];
 

@@ -38,6 +38,7 @@ export function formatarPosto(posto: string): string {
     MAJ_PM: "Maj PM",
     CAP_PM: "Cap PM",
     TEN_PM: "Ten PM",
+    ASP_TEN_PM: "Asp Ten PM",
     P1: "P1",
   };
   return map[posto] ?? posto;
